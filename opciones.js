@@ -1,4 +1,4 @@
-function formatCatalogPrice(value) {
+﻿function formatCatalogPrice(value) {
   return value.toLocaleString("es-CL");
 }
 
@@ -698,12 +698,15 @@ const cartAgenda = document.querySelector("#cart-agenda");
 const cartTotal = document.querySelector("#cart-total");
 const cartFinal = document.querySelector("#cart-final");
 const cartDeposit = document.querySelector("#cart-deposit");
-const cartPayment = document.querySelector("#cart-payment");
 const cartWarning = document.querySelector("#cart-warning");
+const cartCoupon = document.querySelector("#cart-coupon");
+const cartCouponApply = document.querySelector("#cart-coupon-apply");
+const cartCouponMessage = document.querySelector("#cart-coupon-message");
 let cart = JSON.parse(localStorage.getItem("lapinfluencerCart") || "[]");
 let selectedWeek = localStorage.getItem("lapinfluencerAgenda") || "";
-let paymentMethod = localStorage.getItem("lapinfluencerPayment") || "";
-localStorage.removeItem("lapinfluencerCoupon");
+let couponCode = localStorage.getItem("lapinfluencerCoupon") || "";
+const validCouponCode = "1ERACOMPRAWEB20";
+const validCouponDiscount = 0.2;
 
 if (!category || !product) {
   titleEl.textContent = "Producto no encontrado";
@@ -760,8 +763,12 @@ function saveCart() {
   localStorage.setItem("lapinfluencerCart", JSON.stringify(cart));
 }
 
-function savePayment() {
-  localStorage.setItem("lapinfluencerPayment", paymentMethod);
+function saveCoupon() {
+  if (couponCode) {
+    localStorage.setItem("lapinfluencerCoupon", couponCode);
+  } else {
+    localStorage.removeItem("lapinfluencerCoupon");
+  }
 }
 
 function priceAmount(price) {
@@ -774,6 +781,22 @@ function formatCurrency(value) {
 
 function cartTotalAmount() {
   return cart.reduce((total, item) => total + priceAmount(item.price) * item.quantity, 0);
+}
+
+function normalizedCoupon(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function hasValidCoupon() {
+  return normalizedCoupon(couponCode) === validCouponCode;
+}
+
+function cartDiscountAmount() {
+  return hasValidCoupon() ? Math.round(cartTotalAmount() * validCouponDiscount) : 0;
+}
+
+function cartFinalAmount() {
+  return Math.max(0, cartTotalAmount() - cartDiscountAmount());
 }
 
 function selectedAgendaType() {
@@ -819,28 +842,27 @@ function removeFromCart(index) {
 }
 
 function cartMessage() {
-  if (!cart.length && !selectedWeek) return encodeURIComponent("Hola Cata 🎨\nMe interesa agendar un pedido.\nQuedo atent@ a tu confirmación, gracias! 📅✨");
+  if (!cart.length && !selectedWeek) return encodeURIComponent("¡Hola Cata👩🏻‍🎨!\nMe interesa agendar✍🏻.\n\n¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨");
   const lines = cart.map((item) => `- ${item.quantity} x ${item.name} (${item.price})`);
   const agendaLine = selectedWeek || "por coordinar";
   const productLines = lines.length ? lines.join("\n") : "Aun no seleccione productos.";
-  const subtotal = cartTotalAmount();
-  const deposit = Math.ceil(subtotal / 2);
-  const paymentLine = paymentMethod ? `Metodo de pago: ${paymentMethod}` : "Metodo de pago: por definir";
-  return encodeURIComponent(`Hola Cata 🎨
-Me interesa agendar:
+  const discount = cartDiscountAmount();
+  const finalTotal = cartFinalAmount();
+  const deposit = Math.ceil(finalTotal / 2);
+  const discountLine = discount ? `\n🎟️Cupón aplicado: ${validCouponCode} (-${formatCurrency(discount)})\n` : "";
+  return encodeURIComponent(`¡Hola Cata👩🏻‍🎨!
+Me interesa agendar✍🏻:
 
-PEDIDO:
 ${productLines}
 
-Subtotal: ${formatCurrency(subtotal)}
-Total del pedido: ${formatCurrency(subtotal)}
-Abono 50% para agendar: ${formatCurrency(deposit)}
-${paymentLine}
+${discountLine}🟢Total del pedido: ${formatCurrency(finalTotal)}
+
+💸Abono 50% para agendar: ${formatCurrency(deposit)}
 
 Para la semana del: ${agendaLine} 📅
-Quedo atent@ a tu confirmación, gracias! 🗓️✨`);
-}
 
+¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨`);
+}
 function renderCart() {
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   cartCount.textContent = totalItems;
@@ -849,18 +871,33 @@ function renderCart() {
     selectedWeek = localStorage.getItem("lapinfluencerAgenda") || "";
     cartAgenda.textContent = selectedWeek ? `Agenda: ${selectedWeek}` : "Agenda: sin semana seleccionada.";
   }
-  if (cartPayment) {
-    cartPayment.value = paymentMethod;
-  }
   const subtotal = cartTotalAmount();
+  const discount = cartDiscountAmount();
+  const finalTotal = cartFinalAmount();
   if (cartTotal) {
-    cartTotal.textContent = `Subtotal: ${formatCurrency(subtotal)}`;
+    cartTotal.textContent = discount ? `Subtotal: ${formatCurrency(subtotal)} | Descuento: -${formatCurrency(discount)}` : `Subtotal: ${formatCurrency(subtotal)}`;
   }
   if (cartFinal) {
-    cartFinal.textContent = `Total del pedido: ${formatCurrency(subtotal)}`;
+    cartFinal.textContent = `Total del pedido: ${formatCurrency(finalTotal)}`;
   }
   if (cartDeposit) {
-    cartDeposit.textContent = `Abono 50% para agendar: ${formatCurrency(Math.ceil(subtotal / 2))}`;
+    cartDeposit.textContent = `Abono 50% para agendar: ${formatCurrency(Math.ceil(finalTotal / 2))}`;
+  }
+  if (cartCoupon) {
+    cartCoupon.value = couponCode;
+  }
+  if (cartCouponMessage) {
+    const couponField = cartCouponMessage.closest(".coupon-field");
+    couponField?.classList.remove("valid", "invalid");
+    if (!couponCode) {
+      cartCouponMessage.textContent = "";
+    } else if (hasValidCoupon()) {
+      cartCouponMessage.textContent = "Cupón aplicado: 20% de descuento.";
+      couponField?.classList.add("valid");
+    } else {
+      cartCouponMessage.textContent = "Cupón no válido.";
+      couponField?.classList.add("invalid");
+    }
   }
   if (cartWarning) {
     const warning = cartTypeWarning();
@@ -933,10 +970,18 @@ cartItems.addEventListener("click", (event) => {
   removeFromCart(Number(button.dataset.removeIndex));
 });
 
-if (cartPayment) {
-  cartPayment.addEventListener("change", () => {
-    paymentMethod = cartPayment.value;
-    savePayment();
+if (cartCouponApply && cartCoupon) {
+  cartCouponApply.addEventListener("click", () => {
+    couponCode = normalizedCoupon(cartCoupon.value);
+    saveCoupon();
+    renderCart();
+  });
+
+  cartCoupon.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    couponCode = normalizedCoupon(cartCoupon.value);
+    saveCoupon();
     renderCart();
   });
 }

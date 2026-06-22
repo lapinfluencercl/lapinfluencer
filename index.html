@@ -19,7 +19,6 @@
         <a href="#productos">Productos</a>
         <a href="#agenda">Agenda</a>
         <a href="#envios">Envios</a>
-        <a href="#reviews">Reseñas</a>
         <a href="#preguntas">Preguntas frecuentes</a>
         <a href="#acerca">Acerca</a>
       </nav>
@@ -215,65 +214,8 @@
       <section class="idea-section" aria-label="Idea diferente">
         <div class="idea-callout">
           <p>¿Tienes alguna idea diferente que no está en el catálogo? Hagámosla realidad.</p>
-          <a class="button primary idea-button" href="https://wa.me/56985781006?text=Hola!%20Tengo%20una%20idea%20diferente%20para%20un%20pedido." target="_blank" rel="noopener">¡Te cuento mi idea!</a>
+          <a class="button primary idea-button" href="https://wa.me/56985781006?text=%C2%A1Hola%20Cata%F0%9F%91%A9%F0%9F%8F%BB%E2%80%8D%F0%9F%8E%A8!%20Tengo%20una%20idea%20distinta%20para%20un%20pedido%20que%20no%20logr%C3%A9%20encontrar%20en%20la%20web.%0ATe%20comento...%F0%9F%92%A1" target="_blank" rel="noopener">¡Te cuento mi idea!</a>
         </div>
-      </section>
-
-      <section class="reviews-section" id="reviews" aria-labelledby="reviews-label">
-        <div class="section-heading">
-          <p class="eyebrow" id="reviews-label">Reseñas</p>
-        </div>
-
-        <div class="customer-reviews" id="customer-reviews" hidden>
-          <h3>Reseñas de clientes</h3>
-          <div class="reviews-grid customer-reviews-grid" id="customer-reviews-grid"></div>
-        </div>
-
-        <form class="review-form" id="review-form">
-          <div class="review-form-heading">
-            <h3>Deja tu reseña</h3>
-            <p>Ingresa la clave entregada por Cata para compartir la foto y comentario de tu pedido.</p>
-          </div>
-          <div class="review-form-grid">
-            <label>
-              <span>Clave</span>
-              <span class="password-field">
-                <input type="password" id="review-key" autocomplete="off" placeholder="Clave de reseña" required />
-                <button class="password-toggle" type="button" id="review-key-toggle" aria-label="Mostrar clave">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                </button>
-              </span>
-            </label>
-            <label>
-              <span>Tu nombre</span>
-              <input type="text" id="review-name" placeholder="Nombre" required />
-            </label>
-            <label class="rating-field">
-              <span>Estrellas</span>
-              <input type="hidden" id="review-rating" value="5" required />
-              <span class="rating-stars" id="review-stars" role="radiogroup" aria-label="Selecciona estrellas">
-                <button type="button" data-rating="1" aria-label="1 estrella">★</button>
-                <button type="button" data-rating="2" aria-label="2 estrellas">★</button>
-                <button type="button" data-rating="3" aria-label="3 estrellas">★</button>
-                <button type="button" data-rating="4" aria-label="4 estrellas">★</button>
-                <button type="button" data-rating="5" aria-label="5 estrellas">★</button>
-              </span>
-            </label>
-            <label>
-              <span>Foto del pedido</span>
-              <input type="file" id="review-photo" accept="image/*" required />
-            </label>
-          </div>
-          <label>
-            <span>Reseña</span>
-            <textarea id="review-text" rows="4" placeholder="Cuéntanos cómo fue tu pedido" required></textarea>
-          </label>
-          <p class="review-form-message" id="review-form-message" aria-live="polite"></p>
-          <button class="button primary" type="submit">Publicar reseña</button>
-        </form>
       </section>
 
       <section class="faq" id="preguntas" aria-labelledby="faq-title">
@@ -352,7 +294,6 @@
         <a href="#productos">Productos</a>
         <a href="#agenda">Agenda</a>
         <a href="#envios">Envios</a>
-        <a href="#reviews">Reseñas</a>
         <a href="#preguntas">Preguntas frecuentes</a>
         <a href="#acerca">Acerca</a>
       </nav>
@@ -378,14 +319,13 @@
           <p class="cart-total" id="cart-total">Total referencial: 0 CLP</p>
           <p class="cart-final" id="cart-final">Total del pedido: 0 CLP</p>
           <p class="cart-deposit" id="cart-deposit">Abono para agendar: 0 CLP</p>
-          <label class="payment-field">
-            <span>Metodo de pago</span>
-            <select id="cart-payment">
-              <option value="">Seleccionar</option>
-              <option value="Transferencia">Transferencia</option>
-              <option value="Deposito">Deposito</option>
-              <option value="Link de pago credito">Link de pago credito</option>
-            </select>
+          <label class="coupon-field">
+            <span>Código cupón/descuento</span>
+            <div class="coupon-control">
+              <input type="text" id="cart-coupon" placeholder="Ingresa tu cupón" autocomplete="off" />
+              <button type="button" id="cart-coupon-apply">Aplicar</button>
+            </div>
+            <small id="cart-coupon-message"></small>
           </label>
           <p class="cart-warning" id="cart-warning" hidden></p>
         </div>

@@ -1,4 +1,4 @@
-function formatCatalogPrice(value) {
+﻿function formatCatalogPrice(value) {
   return value.toLocaleString("es-CL");
 }
 
@@ -481,19 +481,10 @@ const cartAgenda = document.querySelector("#cart-agenda");
 const cartTotal = document.querySelector("#cart-total");
 const cartFinal = document.querySelector("#cart-final");
 const cartDeposit = document.querySelector("#cart-deposit");
-const cartPayment = document.querySelector("#cart-payment");
 const cartWarning = document.querySelector("#cart-warning");
-const reviewForm = document.querySelector("#review-form");
-const reviewKey = document.querySelector("#review-key");
-const reviewKeyToggle = document.querySelector("#review-key-toggle");
-const reviewName = document.querySelector("#review-name");
-const reviewRating = document.querySelector("#review-rating");
-const reviewStars = document.querySelector("#review-stars");
-const reviewPhoto = document.querySelector("#review-photo");
-const reviewText = document.querySelector("#review-text");
-const reviewMessage = document.querySelector("#review-form-message");
-const customerReviews = document.querySelector("#customer-reviews");
-const customerReviewsGrid = document.querySelector("#customer-reviews-grid");
+const cartCoupon = document.querySelector("#cart-coupon");
+const cartCouponApply = document.querySelector("#cart-coupon-apply");
+const cartCouponMessage = document.querySelector("#cart-coupon-message");
 const calendarGrid = document.querySelector("#calendar-grid");
 const agendaSelected = document.querySelector("#agenda-selected");
 const calendarMonthTitle = document.querySelector("#calendar-month-title");
@@ -505,9 +496,9 @@ let currentCategory = params.get("categoria") || "esculpidas";
 let currentSort = "featured";
 let cart = JSON.parse(localStorage.getItem("lapinfluencerCart") || "[]");
 let selectedWeek = localStorage.getItem("lapinfluencerAgenda") || "";
-let paymentMethod = localStorage.getItem("lapinfluencerPayment") || "";
-const reviewAccessKey = "MIREVIEW";
-localStorage.removeItem("lapinfluencerCoupon");
+let couponCode = localStorage.getItem("lapinfluencerCoupon") || "";
+const validCouponCode = "1ERACOMPRAWEB20";
+const validCouponDiscount = 0.2;
 const today = new Date();
 const firstAgendaMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 const lastAgendaMonth = new Date(2027, 11, 1);
@@ -947,8 +938,12 @@ function saveCart() {
   localStorage.setItem("lapinfluencerCart", JSON.stringify(cart));
 }
 
-function savePayment() {
-  localStorage.setItem("lapinfluencerPayment", paymentMethod);
+function saveCoupon() {
+  if (couponCode) {
+    localStorage.setItem("lapinfluencerCoupon", couponCode);
+  } else {
+    localStorage.removeItem("lapinfluencerCoupon");
+  }
 }
 
 function priceAmount(price) {
@@ -961,6 +956,22 @@ function formatCurrency(value) {
 
 function cartTotalAmount() {
   return cart.reduce((total, item) => total + priceAmount(item.price) * item.quantity, 0);
+}
+
+function normalizedCoupon(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function hasValidCoupon() {
+  return normalizedCoupon(couponCode) === validCouponCode;
+}
+
+function cartDiscountAmount() {
+  return hasValidCoupon() ? Math.round(cartTotalAmount() * validCouponDiscount) : 0;
+}
+
+function cartFinalAmount() {
+  return Math.max(0, cartTotalAmount() - cartDiscountAmount());
 }
 
 function selectedAgendaType() {
@@ -1006,28 +1017,27 @@ function removeFromCart(index) {
 }
 
 function cartMessage() {
-  if (!cart.length && !selectedWeek) return encodeURIComponent("Hola Cata 🎨\nMe interesa agendar un pedido.\nQuedo atent@ a tu confirmación, gracias! 📅✨");
+  if (!cart.length && !selectedWeek) return encodeURIComponent("¡Hola Cata👩🏻‍🎨!\nMe interesa agendar✍🏻.\n\n¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨");
   const lines = cart.map((item) => `- ${item.quantity} x ${item.name} (${item.price})`);
   const agendaLine = selectedWeek || "por coordinar";
   const productLines = lines.length ? lines.join("\n") : "Aun no seleccione productos.";
-  const subtotal = cartTotalAmount();
-  const deposit = Math.ceil(subtotal / 2);
-  const paymentLine = paymentMethod ? `Metodo de pago: ${paymentMethod}` : "Metodo de pago: por definir";
-  return encodeURIComponent(`Hola Cata 🎨
-Me interesa agendar:
+  const discount = cartDiscountAmount();
+  const finalTotal = cartFinalAmount();
+  const deposit = Math.ceil(finalTotal / 2);
+  const discountLine = discount ? `\n🎟️Cupón aplicado: ${validCouponCode} (-${formatCurrency(discount)})\n` : "";
+  return encodeURIComponent(`¡Hola Cata👩🏻‍🎨!
+Me interesa agendar✍🏻:
 
-PEDIDO:
 ${productLines}
 
-Subtotal: ${formatCurrency(subtotal)}
-Total del pedido: ${formatCurrency(subtotal)}
-Abono 50% para agendar: ${formatCurrency(deposit)}
-${paymentLine}
+${discountLine}🟢Total del pedido: ${formatCurrency(finalTotal)}
+
+💸Abono 50% para agendar: ${formatCurrency(deposit)}
 
 Para la semana del: ${agendaLine} 📅
-Quedo atent@ a tu confirmación, gracias! 🗓️✨`);
-}
 
+¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨`);
+}
 function renderCart() {
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   cartCount.textContent = totalItems;
@@ -1035,18 +1045,33 @@ function renderCart() {
   if (cartAgenda) {
     cartAgenda.textContent = selectedWeek ? `Agenda: ${selectedWeek}` : "Agenda: sin semana seleccionada.";
   }
-  if (cartPayment) {
-    cartPayment.value = paymentMethod;
-  }
   const subtotal = cartTotalAmount();
+  const discount = cartDiscountAmount();
+  const finalTotal = cartFinalAmount();
   if (cartTotal) {
-    cartTotal.textContent = `Subtotal: ${formatCurrency(subtotal)}`;
+    cartTotal.textContent = discount ? `Subtotal: ${formatCurrency(subtotal)} | Descuento: -${formatCurrency(discount)}` : `Subtotal: ${formatCurrency(subtotal)}`;
   }
   if (cartFinal) {
-    cartFinal.textContent = `Total del pedido: ${formatCurrency(subtotal)}`;
+    cartFinal.textContent = `Total del pedido: ${formatCurrency(finalTotal)}`;
   }
   if (cartDeposit) {
-    cartDeposit.textContent = `Abono 50% para agendar: ${formatCurrency(Math.ceil(subtotal / 2))}`;
+    cartDeposit.textContent = `Abono 50% para agendar: ${formatCurrency(Math.ceil(finalTotal / 2))}`;
+  }
+  if (cartCoupon) {
+    cartCoupon.value = couponCode;
+  }
+  if (cartCouponMessage) {
+    const couponField = cartCouponMessage.closest(".coupon-field");
+    couponField?.classList.remove("valid", "invalid");
+    if (!couponCode) {
+      cartCouponMessage.textContent = "";
+    } else if (hasValidCoupon()) {
+      cartCouponMessage.textContent = "Cupón aplicado: 20% de descuento.";
+      couponField?.classList.add("valid");
+    } else {
+      cartCouponMessage.textContent = "Cupón no válido.";
+      couponField?.classList.add("invalid");
+    }
   }
   if (cartWarning) {
     const warning = cartTypeWarning();
@@ -1207,149 +1232,19 @@ cartItems.addEventListener("click", (event) => {
   removeFromCart(Number(button.dataset.removeIndex));
 });
 
-if (cartPayment) {
-  cartPayment.addEventListener("change", () => {
-    paymentMethod = cartPayment.value;
-    savePayment();
+if (cartCouponApply && cartCoupon) {
+  cartCouponApply.addEventListener("click", () => {
+    couponCode = normalizedCoupon(cartCoupon.value);
+    saveCoupon();
     renderCart();
   });
-}
 
-function storedReviews() {
-  try {
-    return JSON.parse(localStorage.getItem("lapinfluencerReviews") || "[]");
-  } catch (error) {
-    return [];
-  }
-}
-
-function saveReviews(reviews) {
-  localStorage.setItem("lapinfluencerReviews", JSON.stringify(reviews));
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function starsFor(rating) {
-  const value = Math.max(1, Math.min(5, Number(rating) || 5));
-  return "★".repeat(value);
-}
-
-function renderCustomerReviews() {
-  if (!customerReviews || !customerReviewsGrid) return;
-  const reviews = storedReviews();
-  customerReviews.hidden = reviews.length === 0;
-  customerReviewsGrid.innerHTML = reviews
-    .map(
-      (review) => `
-        <article class="review-card">
-          <img src="${review.photo}" alt="Foto del pedido de ${escapeHtml(review.name)}" />
-          <h4>${escapeHtml(review.name)}</h4>
-          <div class="review-stars" aria-label="${review.rating} de 5 estrellas">${starsFor(review.rating)}</div>
-          <p>“${escapeHtml(review.text)}”</p>
-        </article>
-      `
-    )
-    .join("");
-}
-
-function resizeReviewPhoto(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const image = new Image();
-      image.onload = () => {
-        const maxSize = 900;
-        const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(image.width * scale);
-        canvas.height = Math.round(image.height * scale);
-        const context = canvas.getContext("2d");
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.86));
-      };
-      image.onerror = reject;
-      image.src = reader.result;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function setReviewMessage(text, type) {
-  if (!reviewMessage) return;
-  reviewMessage.textContent = text;
-  reviewMessage.className = `review-form-message ${type || ""}`.trim();
-}
-
-function setReviewRating(value) {
-  if (!reviewRating || !reviewStars) return;
-  const rating = Math.max(1, Math.min(5, Number(value) || 5));
-  reviewRating.value = String(rating);
-  reviewStars.querySelectorAll("button").forEach((button) => {
-    const active = Number(button.dataset.rating) <= rating;
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-checked", Number(button.dataset.rating) === rating ? "true" : "false");
-  });
-}
-
-if (reviewKeyToggle && reviewKey) {
-  reviewKeyToggle.addEventListener("click", () => {
-    const showing = reviewKey.type === "text";
-    reviewKey.type = showing ? "password" : "text";
-    reviewKeyToggle.setAttribute("aria-label", showing ? "Mostrar clave" : "Ocultar clave");
-    reviewKeyToggle.classList.toggle("active", !showing);
-  });
-}
-
-if (reviewStars) {
-  reviewStars.addEventListener("click", (event) => {
-    const button = event.target.closest("button[data-rating]");
-    if (!button) return;
-    setReviewRating(button.dataset.rating);
-  });
-  setReviewRating(reviewRating?.value || 5);
-}
-
-if (reviewForm) {
-  reviewForm.addEventListener("submit", async (event) => {
+  cartCoupon.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
     event.preventDefault();
-    const key = reviewKey.value.trim().toUpperCase();
-    if (key !== reviewAccessKey) {
-      setReviewMessage("Clave incorrecta. Pide la clave a Cata para publicar tu reseña.", "error");
-      return;
-    }
-
-    const file = reviewPhoto.files[0];
-    if (!file) {
-      setReviewMessage("Agrega una foto de tu pedido para publicar la reseña.", "error");
-      return;
-    }
-
-    try {
-      const photo = await resizeReviewPhoto(file);
-      const reviews = storedReviews();
-      reviews.unshift({
-        name: reviewName.value.trim(),
-        rating: reviewRating.value,
-        text: reviewText.value.trim(),
-        photo,
-        createdAt: new Date().toISOString()
-      });
-      saveReviews(reviews.slice(0, 24));
-      renderCustomerReviews();
-      reviewForm.reset();
-      setReviewRating(5);
-      setReviewMessage("Reseña publicada. Muchas gracias por compartir tu pedido.", "success");
-    } catch (error) {
-      setReviewMessage("No pude cargar esa foto. Prueba con otra imagen más liviana.", "error");
-    }
+    couponCode = normalizedCoupon(cartCoupon.value);
+    saveCoupon();
+    renderCart();
   });
 }
 
@@ -1387,7 +1282,6 @@ function setupCalendarSelectors() {
 }
 
 renderCart();
-renderCustomerReviews();
 setupCalendarSelectors();
 renderAgenda();
 

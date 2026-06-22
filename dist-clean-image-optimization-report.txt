@@ -1,0 +1,37 @@
+IMAGE OPTIMIZATION REPORT
+Folder: C:\Users\Cata\Documents\Codex\2026-06-19\va\outputs\lapinfluencer-site\dist-clean\assets\productos
+Files optimized/reviewed: 29
+Total before: 74337067 bytes
+Total after: 31208276 bytes
+Total saved: 43128791 bytes (58.0%)
+
+file	before	after	saved_pct	original_size	final_size	mode
+catalogo-bolsa-limpio.png	652550	637748	2.3%	1000x1000	1000x1000	RGBA->RGBA
+catalogo-clip-auto-limpio.png	549929	529202	3.8%	1000x1000	1000x1000	RGBA->RGBA
+catalogo-lienzos-limpio.png	1214361	1214361	0.0%	1000x1000	1000x1000	RGBA->RGBA
+catalogo-llavero-3d-limpio.png	645436	620750	3.8%	1000x1000	1000x1000	RGBA->RGBA
+catalogo-magneto-3d-limpio.png	669929	640926	4.3%	1000x1000	1000x1000	RGBA->RGBA
+catalogo-tazones-limpio.png	382286	369083	3.5%	1000x1000	1000x1000	RGBA->RGBA
+colgante-8cm.png	3449764	1548796	55.1%	1500x1500	1200x1200	RGBA->RGBA
+colgante-catalogo.png	547811	542229	1.0%	590x690	590x690	RGBA->RGBA
+colores-tazon-cafe-lover.png	672922	312628	53.5%	1500x1500	1200x1200	RGBA->RGBA
+colores-tazon-matero.png	714635	363646	49.1%	1500x1500	1200x1200	RGBA->RGBA
+colores-tazon-sencillo.png	1043811	424524	59.3%	1500x1500	1200x1200	RGBA->RGBA
+colores-tazon-tricolor.png	1148951	502552	56.3%	1500x1500	1200x1200	RGBA->RGBA
+cuadro-3d-15x20.png	5547278	1359756	75.5%	2048x2048	1200x1200	RGBA->RGBA
+cuadro-3d-grande.png	3887026	1888642	51.4%	1500x1500	1200x1200	RGBA->RGBA
+figura-l.png	4890345	1272736	74.0%	2048x2048	1200x1200	RGBA->RGBA
+figura-m.png	3926141	1078806	72.5%	2048x2048	1200x1200	RGBA->RGBA
+lienzo-10x10-faltante.png	4953608	2395479	51.6%	1500x1500	1200x1200	RGBA->RGBA
+lienzo-mascota.png	5469723	2508603	54.1%	1500x1500	1200x1200	RGBA->RGBA
+lienzo-persona-mascota.png	5051440	2428488	51.9%	1500x1500	1200x1200	RGBA->RGBA
+lienzo-retrato-circular.png	5919109	3010011	49.1%	1500x1500	1200x1200	RGBA->RGBA
+lienzo-retrato-persona.png	4673266	2140693	54.2%	1500x1500	1200x1200	RGB->RGB
+llavero-circular-nuevo.png	3660598	941564	74.3%	2048x2048	1200x1200	RGBA->RGBA
+portada-cuadros-3d.png	3170310	871215	72.5%	2048x2048	1200x1200	RGBA->RGBA
+portada-esculpidas-figura.png	357533	351647	1.6%	441x567	441x567	RGBA->RGBA
+portada-figuras.png	2846564	754799	73.5%	2048x2048	1200x1200	RGBA->RGBA
+portada-pintadas-tazon.png	391438	386601	1.2%	571x443	571x443	RGBA->RGBA
+tazon-cafe-lover.png	2163589	581764	73.1%	2048x2048	1200x1200	RGBA->RGBA
+tazon-sencillo.png	3202255	857739	73.2%	2048x2048	1200x1200	RGBA->RGBA
+tazon-tricolor.png	2534459	673288	73.4%	2048x2048	1200x1200	RGBA->RGBA

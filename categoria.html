@@ -19,7 +19,6 @@
         <a href="index.html#productos">Productos</a>
         <a href="index.html#agenda">Agenda</a>
         <a href="index.html#envios">Envios</a>
-        <a href="index.html#reviews">Reseñas</a>
         <a href="index.html#preguntas">Preguntas frecuentes</a>
         <a href="index.html#acerca">Acerca</a>
       </nav>
@@ -101,14 +100,13 @@
           <p class="cart-total" id="cart-total">Total referencial: 0 CLP</p>
           <p class="cart-final" id="cart-final">Total del pedido: 0 CLP</p>
           <p class="cart-deposit" id="cart-deposit">Abono para agendar: 0 CLP</p>
-          <label class="payment-field">
-            <span>Metodo de pago</span>
-            <select id="cart-payment">
-              <option value="">Seleccionar</option>
-              <option value="Transferencia">Transferencia</option>
-              <option value="Deposito">Deposito</option>
-              <option value="Link de pago credito">Link de pago credito</option>
-            </select>
+          <label class="coupon-field">
+            <span>Código cupón/descuento</span>
+            <div class="coupon-control">
+              <input type="text" id="cart-coupon" placeholder="Ingresa tu cupón" autocomplete="off" />
+              <button type="button" id="cart-coupon-apply">Aplicar</button>
+            </div>
+            <small id="cart-coupon-message"></small>
           </label>
           <p class="cart-warning" id="cart-warning" hidden></p>
         </div>
