@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Categoria | Lapinfluencer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html#inicio" aria-label="Ir al inicio">
+        <img class="brand-logo" src="assets/logo-lapinfluencer.png" alt="Lapinfluencer, regalos con sentido" />
+      </a>
+      <nav class="top-nav" aria-label="Navegacion principal">
+        <a href="index.html#inicio">Home</a>
+        <a href="index.html#productos">Productos</a>
+        <a href="index.html#agenda">Agenda</a>
+        <a href="index.html#envios">Envios</a>
+        <a href="index.html#reviews">Reseñas</a>
+        <a href="index.html#preguntas">Preguntas frecuentes</a>
+        <a href="index.html#acerca">Acerca</a>
+      </nav>
+      <div class="header-actions">
+        <button class="cart-button" type="button" id="cart-open-button" aria-label="Abrir carrito">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M6 6h15l-2 8H8L6 3H3" />
+            <circle cx="9" cy="20" r="1.5" />
+            <circle cx="18" cy="20" r="1.5" />
+          </svg>
+          <span id="cart-count">0</span>
+        </button>
+        <div class="social-links" aria-label="Redes sociales">
+          <a href="https://www.tiktok.com/@lapinfluencer" target="_blank" rel="noopener" aria-label="TikTok Lapinfluencer">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M16.7 3c.3 2.2 1.6 3.8 3.8 4.2v3.3c-1.3 0-2.5-.4-3.7-1.1v5.9c0 3.4-2.3 5.7-5.7 5.7-3 0-5.5-2.3-5.5-5.3 0-3.2 2.6-5.5 5.9-5.3.3 0 .6.1.9.1v3.4c-.3-.1-.6-.2-1-.2-1.4 0-2.4.8-2.4 2 0 1.1.9 1.9 2.1 1.9 1.3 0 2.1-.8 2.1-2.4V3h3.5Z" />
+            </svg>
+          </a>
+          <a href="https://www.instagram.com/lapinfluencer/" target="_blank" rel="noopener" aria-label="Instagram Lapinfluencer">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <rect x="4" y="4" width="16" height="16" rx="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle cx="17" cy="7" r="1.2" />
+            </svg>
+          </a>
+          <a href="https://wa.me/56985781006" target="_blank" rel="noopener" aria-label="WhatsApp Lapinfluencer">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M5.2 19 6.4 15.3A7.6 7.6 0 1 1 9 17.8L5.2 19Z" />
+              <path d="M9.1 8.4c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.4l.7 1.6c.1.2.1.4-.1.6l-.4.5c-.1.1-.2.3 0 .5.5.9 1.3 1.7 2.3 2.2.2.1.4.1.5-.1l.6-.7c.2-.2.4-.2.6-.1l1.6.8c.3.1.4.3.4.6 0 .6-.5 1.4-1.1 1.6-.5.2-1.1.3-2-.1-2.5-.8-4.6-2.9-5.5-5.3-.3-.8-.2-1.4 0-1.8Z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="category-page" id="productos" aria-labelledby="current-category-title">
+        <a class="back-link" href="index.html#productos">Atras a productos</a>
+        <div class="toolbar">
+          <div>
+            <p class="eyebrow" id="current-category-label">Productos</p>
+            <h1 id="current-category-title">Productos disponibles</h1>
+          </div>
+          <div class="category-tabs" aria-label="Cambiar categoria">
+            <button class="category-button active" type="button" data-category="esculpidas">
+              <span>Piezas Esculpidas</span>
+            </button>
+            <button class="category-button" type="button" data-category="pintadas">
+              <span>Piezas Pintadas</span>
+            </button>
+          </div>
+        </div>
+
+        <label class="sort-choice" aria-label="Ordenar productos">
+          <span>Ordenar por</span>
+          <select id="sort-select">
+            <option value="featured">Destacados</option>
+            <option value="price-asc">Ordenar de menor a mayor</option>
+            <option value="price-desc">Ordenar de mayor a menor</option>
+          </select>
+        </label>
+
+        <button class="text-button" type="button" id="back-button" hidden>Atras</button>
+        <div class="product-grid" id="product-grid" aria-live="polite"></div>
+        <div class="option-view" id="option-view" hidden></div>
+      </section>
+    </main>
+
+    <aside class="cart-drawer" id="cart-drawer" aria-label="Carrito" hidden>
+      <div class="cart-panel">
+        <div class="cart-header">
+          <h2>Carrito</h2>
+          <button class="icon-button" type="button" id="cart-close-button" aria-label="Cerrar carrito">x</button>
+        </div>
+        <div class="cart-items" id="cart-items"></div>
+        <p class="cart-agenda" id="cart-agenda">Agenda: sin semana seleccionada.</p>
+        <p class="cart-empty" id="cart-empty">Tu carrito esta vacio.</p>
+        <div class="cart-summary">
+          <p class="cart-total" id="cart-total">Total referencial: 0 CLP</p>
+          <p class="cart-final" id="cart-final">Total del pedido: 0 CLP</p>
+          <p class="cart-deposit" id="cart-deposit">Abono para agendar: 0 CLP</p>
+          <label class="payment-field">
+            <span>Metodo de pago</span>
+            <select id="cart-payment">
+              <option value="">Seleccionar</option>
+              <option value="Transferencia">Transferencia</option>
+              <option value="Deposito">Deposito</option>
+              <option value="Link de pago credito">Link de pago credito</option>
+            </select>
+          </label>
+          <p class="cart-warning" id="cart-warning" hidden></p>
+        </div>
+        <p class="cart-note">Al agendar pedido seras redirigido a WhatsApp para coordinar los detalles.</p>
+        <a class="button primary cart-whatsapp" id="cart-whatsapp" href="https://wa.me/56985781006" target="_blank" rel="noopener">Agendar Pedido</a>
+      </div>
+    </aside>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,400 @@
+﻿<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lapinfluencer | Catalogo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#inicio" aria-label="Ir al inicio">
+        <img class="brand-logo" src="assets/logo-lapinfluencer.png" alt="Lapinfluencer, regalos con sentido" />
+      </a>
+      <nav class="top-nav" aria-label="Navegacion principal">
+        <a href="#inicio">Home</a>
+        <a href="#productos">Productos</a>
+        <a href="#agenda">Agenda</a>
+        <a href="#envios">Envios</a>
+        <a href="#reviews">Reseñas</a>
+        <a href="#preguntas">Preguntas frecuentes</a>
+        <a href="#acerca">Acerca</a>
+      </nav>
+      <div class="header-actions">
+        <button class="cart-button" type="button" id="cart-open-button" aria-label="Abrir carrito">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M6 6h15l-2 8H8L6 3H3" />
+            <circle cx="9" cy="20" r="1.5" />
+            <circle cx="18" cy="20" r="1.5" />
+          </svg>
+          <span id="cart-count">0</span>
+        </button>
+        <div class="social-links" aria-label="Redes sociales">
+          <a href="https://www.tiktok.com/@lapinfluencer" target="_blank" rel="noopener" aria-label="TikTok Lapinfluencer">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M16.7 3c.3 2.2 1.6 3.8 3.8 4.2v3.3c-1.3 0-2.5-.4-3.7-1.1v5.9c0 3.4-2.3 5.7-5.7 5.7-3 0-5.5-2.3-5.5-5.3 0-3.2 2.6-5.5 5.9-5.3.3 0 .6.1.9.1v3.4c-.3-.1-.6-.2-1-.2-1.4 0-2.4.8-2.4 2 0 1.1.9 1.9 2.1 1.9 1.3 0 2.1-.8 2.1-2.4V3h3.5Z" />
+            </svg>
+          </a>
+          <a href="https://www.instagram.com/lapinfluencer/" target="_blank" rel="noopener" aria-label="Instagram Lapinfluencer">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <rect x="4" y="4" width="16" height="16" rx="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle cx="17" cy="7" r="1.2" />
+            </svg>
+          </a>
+          <a href="https://wa.me/56985781006" target="_blank" rel="noopener" aria-label="WhatsApp Lapinfluencer">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M5.2 19 6.4 15.3A7.6 7.6 0 1 1 9 17.8L5.2 19Z" />
+              <path d="M9.1 8.4c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.4l.7 1.6c.1.2.1.4-.1.6l-.4.5c-.1.1-.2.3 0 .5.5.9 1.3 1.7 2.3 2.2.2.1.4.1.5-.1l.6-.7c.2-.2.4-.2.6-.1l1.6.8c.3.1.4.3.4.6 0 .6-.5 1.4-1.1 1.6-.5.2-1.1.3-2-.1-2.5-.8-4.6-2.9-5.5-5.3-.3-.8-.2-1.4 0-1.8Z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="inicio">
+        <div class="hero-copy">
+          <h1>Piezas unicas<br />confeccionadas a mano</h1>
+          <p class="hero-subtitle">Personalizadas a traves de la foto de tu mascota</p>
+          <p>
+            Cada pieza es realizada a mano y de forma individual, cuidando el
+            detalle y la expresion en cada mascota.
+          </p>
+          <p class="monthly-spots">Cupos mensuales limitados</p>
+        </div>
+        <figure class="hero-photo">
+          <img src="assets/inicio-productos-sin-fondo.png" alt="Piezas personalizadas de mascotas hechas a mano" />
+        </figure>
+      </section>
+
+      <section class="catalog-shell" id="productos" aria-labelledby="catalog-title">
+        <div class="section-heading">
+          <p class="eyebrow">Catalogo</p>
+          <h2 id="catalog-title">Elige el tipo de producto</h2>
+        </div>
+
+        <div class="catalog-choice" aria-label="Tipos de productos">
+          <a class="choice-card choice-sculpted" href="categoria.html?categoria=esculpidas">
+            <span class="choice-icon">
+              <img src="assets/productos/portada-esculpidas-figura.png" alt="" aria-hidden="true" />
+            </span>
+            <span class="choice-copy">
+              <strong>Piezas Esculpidas</strong>
+              <small>
+                <span>Piezas hechas 100% a mano trabajadas en volumen/3D.</span>
+                <span>Figuras, llaveros, clips para el auto, magnetos, colgantes y marcos.</span>
+              </small>
+            </span>
+          </a>
+          <a class="choice-card choice-painted" href="categoria.html?categoria=pintadas">
+            <span class="choice-icon">
+              <img src="assets/productos/portada-pintadas-tazon.png" alt="" aria-hidden="true" />
+            </span>
+            <span class="choice-copy">
+              <strong>Piezas Pintadas</strong>
+              <small>
+                <span>Piezas hechas 100% a mano trabajadas en formato plano.</span>
+                <span>Retratos sobre lienzos de distintos tamanos, tazones y bolsos reutilizables.</span>
+              </small>
+            </span>
+          </a>
+        </div>
+      </section>
+
+      <section class="agenda" id="agenda" aria-labelledby="agenda-title">
+        <div class="section-heading">
+          <span class="agenda-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <rect x="4" y="5" width="16" height="15" rx="2" />
+              <path d="M8 3v4" />
+              <path d="M16 3v4" />
+              <path d="M4 10h16" />
+              <path d="M8 14h2" />
+              <path d="M12 14h2" />
+              <path d="M16 14h2" />
+            </svg>
+          </span>
+          <p class="eyebrow">Cupos semanales</p>
+          <h2 id="agenda-title">Agenda disponible</h2>
+          <p>
+            Elige una semana referencial para tu pedido. La fecha se confirma
+            por WhatsApp segun disponibilidad y tipo de pieza.
+          </p>
+        </div>
+
+        <div class="calendar-card">
+          <div class="calendar-heading">
+            <div>
+              <h3 id="calendar-month-title">Agenda</h3>
+              <span>Agenda por semanas</span>
+            </div>
+            <div class="calendar-controls" aria-label="Cambiar mes">
+              <label>
+                <span>Mes</span>
+                <select id="calendar-month-select"></select>
+              </label>
+              <label>
+                <span>Año</span>
+                <select id="calendar-year-select"></select>
+              </label>
+            </div>
+          </div>
+          <div class="calendar-grid" id="calendar-grid" aria-label="Semanas disponibles"></div>
+          <p class="agenda-selected" id="agenda-selected">Aun no has elegido semana.</p>
+        </div>
+      </section>
+
+      <section class="payment-section" aria-labelledby="payment-title">
+        <div class="payment-card">
+          <span class="payment-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <path d="M3 10h18" />
+              <path d="M7 15h4" />
+            </svg>
+          </span>
+          <div>
+            <h2 id="payment-title">Medios de pago</h2>
+            <p>
+              Puedes pagar por transferencia bancaria, depósito o link de pago.
+            </p>
+            <p>
+              Hasta 12 cuotas con tarjeta de crédito. El pago se realiza por el
+              total del pedido e incluye la comisión propia del crédito y de la
+              plataforma Mercado Pago.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="shipping-section" id="envios">
+        <div class="shipping-card">
+          <span class="shipping-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 7h11v9H3z" />
+              <path d="M14 10h4l3 3v3h-7z" />
+              <circle cx="7" cy="18" r="2" />
+              <circle cx="18" cy="18" r="2" />
+            </svg>
+          </span>
+          <h2>Envios</h2>
+          <p>
+            Envios a todo Chile a traves de Starken, Correos de Chile o
+            Chilexpress.
+          </p>
+          <p>
+            Envios al extranjero, consultar por mensaje.
+          </p>
+        </div>
+      </section>
+
+      <section class="about" id="acerca">
+        <div class="about-copy">
+          <h2>Detrás de Lapinfluencer</h2>
+          <p>
+            ¡Hola! Soy Cata, la creadora de Lapinfluencer, un proyecto
+            artístico nacido en 2019 en Curicó, Chile. Creo piezas
+            confeccionadas desde cero y hechas completamente a mano desde hace
+            más de 6 años. Cada encargo es trabajado de forma
+            individual, cuidando la expresión, los rasgos y esos pequeños
+            detalles que hacen única a cada mascota. Al ser un trabajo
+            artesanal, los cupos son limitados: cada pieza requiere tiempo,
+            observación, dedicación y una interpretación artística
+            personalizada. Gracias por tomarte el tiempo de conocer mi trabajo.
+          </p>
+        </div>
+        <figure class="about-photo">
+          <img src="assets/catalina-creadora.png" alt="Catalina, creadora de Lapinfluencer" />
+        </figure>
+      </section>
+
+      <section class="idea-section" aria-label="Idea diferente">
+        <div class="idea-callout">
+          <p>¿Tienes alguna idea diferente que no está en el catálogo? Hagámosla realidad.</p>
+          <a class="button primary idea-button" href="https://wa.me/56985781006?text=Hola!%20Tengo%20una%20idea%20diferente%20para%20un%20pedido." target="_blank" rel="noopener">¡Te cuento mi idea!</a>
+        </div>
+      </section>
+
+      <section class="reviews-section" id="reviews" aria-labelledby="reviews-label">
+        <div class="section-heading">
+          <p class="eyebrow" id="reviews-label">Reseñas</p>
+        </div>
+
+        <div class="customer-reviews" id="customer-reviews" hidden>
+          <h3>Reseñas de clientes</h3>
+          <div class="reviews-grid customer-reviews-grid" id="customer-reviews-grid"></div>
+        </div>
+
+        <form class="review-form" id="review-form">
+          <div class="review-form-heading">
+            <h3>Deja tu reseña</h3>
+            <p>Ingresa la clave entregada por Cata para compartir la foto y comentario de tu pedido.</p>
+          </div>
+          <div class="review-form-grid">
+            <label>
+              <span>Clave</span>
+              <span class="password-field">
+                <input type="password" id="review-key" autocomplete="off" placeholder="Clave de reseña" required />
+                <button class="password-toggle" type="button" id="review-key-toggle" aria-label="Mostrar clave">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </span>
+            </label>
+            <label>
+              <span>Tu nombre</span>
+              <input type="text" id="review-name" placeholder="Nombre" required />
+            </label>
+            <label class="rating-field">
+              <span>Estrellas</span>
+              <input type="hidden" id="review-rating" value="5" required />
+              <span class="rating-stars" id="review-stars" role="radiogroup" aria-label="Selecciona estrellas">
+                <button type="button" data-rating="1" aria-label="1 estrella">★</button>
+                <button type="button" data-rating="2" aria-label="2 estrellas">★</button>
+                <button type="button" data-rating="3" aria-label="3 estrellas">★</button>
+                <button type="button" data-rating="4" aria-label="4 estrellas">★</button>
+                <button type="button" data-rating="5" aria-label="5 estrellas">★</button>
+              </span>
+            </label>
+            <label>
+              <span>Foto del pedido</span>
+              <input type="file" id="review-photo" accept="image/*" required />
+            </label>
+          </div>
+          <label>
+            <span>Reseña</span>
+            <textarea id="review-text" rows="4" placeholder="Cuéntanos cómo fue tu pedido" required></textarea>
+          </label>
+          <p class="review-form-message" id="review-form-message" aria-live="polite"></p>
+          <button class="button primary" type="submit">Publicar reseña</button>
+        </form>
+      </section>
+
+      <section class="faq" id="preguntas" aria-labelledby="faq-title">
+        <div class="section-heading">
+          <h2 id="faq-title">Preguntas frecuentes</h2>
+        </div>
+
+        <div class="faq-list">
+          <details open>
+            <summary>¿Que necesito para agendar?</summary>
+            <p>
+              Necesitas al menos una foto de tu mascota. No tiene que ser
+              perfecta: si tienes dudas, puedes agendar, enviarla por WhatsApp
+              y te confirmo si sirve para la pieza. Para reservar el cupo se
+              paga el 50% del total del carrito; el resto se paga cuando tu
+              pedido este listo.
+            </p>
+          </details>
+          <details>
+            <summary>¿Como funciona la agenda?</summary>
+            <p>
+              Se trabaja con cupos semanales limitados. Puedes revisar el
+              calendario disponible, elegir una semana referencial y agregarla
+              a tu pedido. El pedido se envia dentro de la semana agendada.
+              La fecha se confirma por WhatsApp segun disponibilidad y tipo de
+              pieza.
+            </p>
+          </details>
+          <details>
+            <summary>¿El envio esta incluido en el valor?</summary>
+            <p>
+              No, el envio se paga a la empresa correspondiente que realiza el
+              servicio: Starken, Chile Express o Correos de Chile.
+            </p>
+          </details>
+          <details>
+            <summary>¿Puedo hacer un pedido urgente?</summary>
+            <p>
+              Si, envia un mensaje comentandolo y reviso disponibilidad de
+              sobrecupo. El sobrecupo tiene un valor adicional segun el
+              producto.
+            </p>
+          </details>
+          <details>
+            <summary>¿Puedo lavar mi tazon?</summary>
+            <p>
+              Si. Para cuidarlos mejor, lava a mano con esponja suave, evita
+              remojar por mucho tiempo y no uses lavavajillas ni microondas.
+            </p>
+          </details>
+          <details>
+            <summary>¿Puedo lavar mi bolsa reutilizable?</summary>
+            <p>
+              Si. Lava a mano con agua fria, evita restregar directamente la
+              pintura, no uses cloro y deja secar a la sombra.
+            </p>
+          </details>
+          <details>
+            <summary>Mi mascota ahora es un angelito, ¿puedo agregar aureola o alas?</summary>
+            <p>
+              Si. En las piezas que lo permiten, puedes agregar aureola o alas
+              sin costo adicional para un homenaje postumo.
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="assets/logo-lapinfluencer.png" alt="Lapinfluencer, regalos con sentido" />
+        <p>Regalos personalizados hechos a mano en Curicó, Chile.</p>
+      </div>
+      <nav class="footer-links" aria-label="Enlaces del pie de pagina">
+        <a href="#inicio">Home</a>
+        <a href="#productos">Productos</a>
+        <a href="#agenda">Agenda</a>
+        <a href="#envios">Envios</a>
+        <a href="#reviews">Reseñas</a>
+        <a href="#preguntas">Preguntas frecuentes</a>
+        <a href="#acerca">Acerca</a>
+      </nav>
+      <div class="footer-contact">
+        <strong>Contacto</strong>
+        <a href="https://wa.me/56985781006" target="_blank" rel="noopener">WhatsApp +56 9 8578 1006</a>
+        <a href="https://www.instagram.com/lapinfluencer/" target="_blank" rel="noopener">Instagram @lapinfluencer</a>
+        <a href="https://www.tiktok.com/@lapinfluencer" target="_blank" rel="noopener">TikTok @lapinfluencer</a>
+      </div>
+      <p class="footer-copy">© 2026 Lapinfluencer. Todos los derechos reservados.</p>
+    </footer>
+
+    <aside class="cart-drawer" id="cart-drawer" aria-label="Carrito" hidden>
+      <div class="cart-panel">
+        <div class="cart-header">
+          <h2>Carrito</h2>
+          <button class="icon-button" type="button" id="cart-close-button" aria-label="Cerrar carrito">x</button>
+        </div>
+        <div class="cart-items" id="cart-items"></div>
+        <p class="cart-agenda" id="cart-agenda">Agenda: sin semana seleccionada.</p>
+        <p class="cart-empty" id="cart-empty">Tu carrito esta vacio.</p>
+        <div class="cart-summary">
+          <p class="cart-total" id="cart-total">Total referencial: 0 CLP</p>
+          <p class="cart-final" id="cart-final">Total del pedido: 0 CLP</p>
+          <p class="cart-deposit" id="cart-deposit">Abono para agendar: 0 CLP</p>
+          <label class="payment-field">
+            <span>Metodo de pago</span>
+            <select id="cart-payment">
+              <option value="">Seleccionar</option>
+              <option value="Transferencia">Transferencia</option>
+              <option value="Deposito">Deposito</option>
+              <option value="Link de pago credito">Link de pago credito</option>
+            </select>
+          </label>
+          <p class="cart-warning" id="cart-warning" hidden></p>
+        </div>
+        <p class="cart-note">Al agendar pedido seras redirigido a WhatsApp para coordinar los detalles.</p>
+        <a class="button primary cart-whatsapp" id="cart-whatsapp" href="https://wa.me/56985781006" target="_blank" rel="noopener">Agendar Pedido</a>
+      </div>
+    </aside>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
