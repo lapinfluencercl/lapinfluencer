@@ -707,10 +707,12 @@ h3 {
   list-style: none;
 }
 
-.process-steps li {
+.process-step {
   display: grid;
   gap: 8px;
   justify-items: center;
+  align-content: center;
+  min-width: 0;
   padding: 14px 10px;
   text-align: center;
   background: rgba(255, 236, 162, 0.48);
@@ -718,8 +720,9 @@ h3 {
   border-radius: 8px;
 }
 
-.process-steps span {
+.process-number {
   display: grid;
+  flex: 0 0 auto;
   width: 34px;
   height: 34px;
   place-items: center;
@@ -729,9 +732,12 @@ h3 {
   font-weight: 900;
 }
 
-.process-steps strong {
+.process-text {
+  display: block;
+  min-width: 0;
   font-size: 0.96rem;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .idea-section {
@@ -2298,7 +2304,8 @@ h3 {
     max-width: 420px;
   }
 
-  .process-steps li {
+  .process-step {
+    display: grid;
     grid-template-columns: 34px 1fr;
     justify-items: start;
     align-items: center;
@@ -2444,7 +2451,8 @@ h3 {
     max-width: 360px;
   }
 
-  .process-steps li {
+  .process-step {
+    display: grid;
     grid-template-columns: 34px 1fr;
     justify-items: start;
     align-items: center;

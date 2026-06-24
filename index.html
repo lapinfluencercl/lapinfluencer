@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=final2" />
   </head>
   <body>
     <header class="site-header">
@@ -81,12 +81,12 @@
           <p class="eyebrow">Cómo comprar</p>
           <h2 id="process-title">Tu pedido en 4 pasos</h2>
         </div>
-        <ol class="process-steps" aria-label="Proceso de compra">
-          <li><span>1</span><strong>Elige producto</strong></li>
-          <li><span>2</span><strong>Agrega al carrito</strong></li>
-          <li><span>3</span><strong>Elige semana</strong></li>
-          <li><span>4</span><strong>Presiona “Agendar pedido” en el carrito</strong></li>
-        </ol>
+        <div class="process-steps" aria-label="Proceso de compra">
+          <div class="process-step"><span class="process-number">1</span><strong class="process-text">Elige producto</strong></div>
+          <div class="process-step"><span class="process-number">2</span><strong class="process-text">Agrega al carrito</strong></div>
+          <div class="process-step"><span class="process-number">3</span><strong class="process-text">Elige semana</strong></div>
+          <div class="process-step"><span class="process-number">4</span><strong class="process-text">Presiona “Agendar pedido” en el carrito</strong></div>
+        </div>
       </section>
 
       <section class="catalog-shell" id="productos" aria-labelledby="catalog-title">
