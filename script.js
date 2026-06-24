@@ -496,20 +496,17 @@ let currentCategory = params.get("categoria") || "esculpidas";
 let currentSort = "featured";
 let cart = JSON.parse(localStorage.getItem("lapinfluencerCart") || "[]");
 let selectedWeek = localStorage.getItem("lapinfluencerAgenda") || "";
-let couponCode = localStorage.getItem("lapinfluencerCoupon") || "";
-const validCouponCode = "1ERACOMPRAWEB20";
-const validCouponDiscount = 0.2;
+let selectedWeekKey = localStorage.getItem("lapinfluencerAgendaKey") || "";
+let selectedWeekType = localStorage.getItem("lapinfluencerAgendaType") || "";
+let couponCode = "";
+let appliedCoupon = null;
+let couponStatus = "";
+let coupons = [];
 const today = new Date();
 const firstAgendaMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-const lastAgendaMonth = new Date(2027, 11, 1);
+const lastAgendaMonth = new Date(today.getFullYear(), today.getMonth() + 17, 1);
 let visibleAgendaMonth = new Date(firstAgendaMonth);
-const agendaAvailability = {
-  "2026-5-1": { pintadas: "full", esculpidas: "full" },
-  "2026-5-2": { pintadas: "full", esculpidas: "full" },
-  "2026-5-3": { pintadas: "full", esculpidas: "full" },
-  "2026-5-4": { pintadas: "full", esculpidas: "full" },
-  "2026-6-1": { esculpidas: "full" }
-};
+let agendaAvailability = {};
 const agendaTypes = {
   pintadas: "Pintura",
   esculpidas: "Escultura"
@@ -518,15 +515,96 @@ const monthNames = Array.from({ length: 12 }, (_, index) =>
   new Date(2026, index, 1).toLocaleDateString("es-CL", { month: "long" })
 );
 
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function agendaWeeksForMonth(monthDate) {
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const weekCandidates = [];
+  const firstCalendarDay = new Date(year, month, 1);
+  const firstOffset = (firstCalendarDay.getDay() + 6) % 7;
+  const firstVisibleDay = new Date(year, month, 1 - firstOffset);
+
+  for (let row = 0; row < 6; row += 1) {
+    const days = [];
+    for (let column = 0; column < 7; column += 1) {
+      const date = new Date(firstVisibleDay);
+      date.setDate(firstVisibleDay.getDate() + row * 7 + column);
+      days.push(date);
+    }
+
+    const inMonthDays = days.filter((date) => date.getMonth() === month);
+    if (!inMonthDays.length) continue;
+
+    const isFullWeek = days[0].getMonth() === month && days[6].getMonth() === month;
+    weekCandidates.push({ days, inMonthDays, isFullWeek });
+  }
+
+  const fullWeeks = weekCandidates.filter((week) => week.isFullWeek);
+  const partialWeeks = weekCandidates
+    .filter((week) => !week.isFullWeek)
+    .sort((a, b) => b.inMonthDays.length - a.inMonthDays.length);
+
+  return (fullWeeks.length >= 4 ? fullWeeks.slice(0, 4) : [...fullWeeks, ...partialWeeks.slice(0, 4 - fullWeeks.length)])
+    .sort((a, b) => a.days[0] - b.days[0]);
+}
+
+function isPastAgendaWeek(days) {
+  const weekEnd = days[6];
+  return startOfDay(weekEnd) < startOfDay(new Date());
+}
+
 function monthHasAvailability(monthDate) {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
-  for (let week = 1; week <= 4; week += 1) {
-    const availability = agendaAvailability[`${year}-${month}-${week}`] || {};
+  return agendaWeeksForMonth(monthDate).some((weekCandidate, index) => {
+    if (isPastAgendaWeek(weekCandidate.days)) return false;
+    const availability = agendaAvailability[agendaKey(year, month, index + 1)] || {};
     const isFull = Object.keys(agendaTypes).every((typeKey) => availability[typeKey] === "full");
-    if (!isFull) return true;
+    return !isFull;
+  });
+}
+
+function agendaKey(year, monthIndex, week) {
+  return `${year}-${String(monthIndex + 1).padStart(2, "0")}-semana-${week}`;
+}
+
+function agendaRangeText(weekStart, weekEnd, monthOnlyFormatter) {
+  const startMonth = monthOnlyFormatter.format(weekStart);
+  const endMonth = monthOnlyFormatter.format(weekEnd);
+  if (startMonth === endMonth) {
+    return `${weekStart.getDate()} al ${weekEnd.getDate()} de ${endMonth}`;
   }
-  return false;
+  return `${weekStart.getDate()} de ${startMonth} al ${weekEnd.getDate()} de ${endMonth}`;
+}
+
+function agendaDisplayText({ weekIndex, monthLabel, weekStart, weekEnd, typeLabel, monthOnlyFormatter }) {
+  return `Agendando para: semana ${weekIndex} de ${monthLabel}, del ${agendaRangeText(weekStart, weekEnd, monthOnlyFormatter)} — cupo ${typeLabel.toLowerCase()}`;
+}
+
+function clearSelectedAgenda() {
+  selectedWeek = "";
+  selectedWeekKey = "";
+  selectedWeekType = "";
+  localStorage.removeItem("lapinfluencerAgenda");
+  localStorage.removeItem("lapinfluencerAgendaKey");
+  localStorage.removeItem("lapinfluencerAgendaType");
+}
+
+function selectedAgendaIsAvailable() {
+  if (!selectedWeek) return true;
+  if (!selectedWeekKey || !selectedWeekType) return false;
+  const match = selectedWeekKey.match(/^(\d{4})-(\d{2})-semana-(\d+)$/);
+  if (!match) return false;
+  const year = Number(match[1]);
+  const monthIndex = Number(match[2]) - 1;
+  const weekIndex = Number(match[3]) - 1;
+  const week = agendaWeeksForMonth(new Date(year, monthIndex, 1))[weekIndex];
+  if (!week || isPastAgendaWeek(week.days)) return false;
+  const availability = agendaAvailability[selectedWeekKey] || {};
+  return availability[selectedWeekType] !== "full";
 }
 
 function firstAvailableAgendaMonth() {
@@ -537,8 +615,6 @@ function firstAvailableAgendaMonth() {
   }
   return new Date(firstAgendaMonth);
 }
-
-visibleAgendaMonth = firstAvailableAgendaMonth();
 
 function slugify(value) {
   return value
@@ -638,7 +714,7 @@ function renderVariantChoice(product, option) {
 
   return `
     <label class="variant-choice">
-      <span>Selecciona una opcion</span>
+      <span>Selecciona una opción</span>
       <select data-variant-select>
         <option value="">Seleccionar</option>
         ${option.variants
@@ -768,7 +844,7 @@ function renderProducts() {
   grid.innerHTML = sortedProducts(category.products)
     .map((product) => {
       const hasOptions = Array.isArray(product.options);
-      const action = hasOptions ? "Ver opciones" : "Ver mas";
+      const action = hasOptions ? "Ver opciones" : "Ver más";
       return `
         <article class="product-card">
           <div class="product-image product-image-area" aria-hidden="true">
@@ -819,7 +895,7 @@ function renderDetails(product) {
         <button class="card-action" type="button" data-cart-name="${product.name}" data-cart-price="${formatPrice(product.price)}">Agregar al carrito</button>
       </article>
     </div>
-    <aside class="catalog-note">Para medidas especiales, ideas personalizadas o detalles fuera del catalogo, agrega la opcion mas cercana y lo coordinamos por WhatsApp.</aside>
+    <aside class="catalog-note">Para medidas especiales, ideas personalizadas o detalles fuera del catálogo, agrega la opción más cercana y lo coordinamos por WhatsApp.</aside>
   `;
   optionView.innerHTML = optionView.innerHTML.replace(/\u00c2\u00bf/g, "\u00bf");
 }
@@ -829,7 +905,7 @@ function renderOptions(product) {
     <h4>${product.name}: opciones</h4>
     ${renderOptionGroups(product)}
     ${product.notice ? `<aside class="catalog-note">${product.notice}</aside>` : ""}
-    <aside class="catalog-note">Para medidas especiales, ideas personalizadas o detalles fuera del catalogo, agrega la opcion mas cercana y lo coordinamos por WhatsApp.</aside>
+    <aside class="catalog-note">Para medidas especiales, ideas personalizadas o detalles fuera del catálogo, agrega la opción más cercana y lo coordinamos por WhatsApp.</aside>
   `;
 }
 
@@ -938,14 +1014,6 @@ function saveCart() {
   localStorage.setItem("lapinfluencerCart", JSON.stringify(cart));
 }
 
-function saveCoupon() {
-  if (couponCode) {
-    localStorage.setItem("lapinfluencerCoupon", couponCode);
-  } else {
-    localStorage.removeItem("lapinfluencerCoupon");
-  }
-}
-
 function priceAmount(price) {
   return (String(price || "").match(/\d{1,3}(?:\.\d{3})+/g) || []).reduce((total, value) => total + Number(value.replace(/\./g, "")), 0);
 }
@@ -962,12 +1030,45 @@ function normalizedCoupon(value) {
   return String(value || "").trim().toUpperCase();
 }
 
-function hasValidCoupon() {
-  return normalizedCoupon(couponCode) === validCouponCode;
+function couponDescription(coupon) {
+  if (!coupon) return "";
+  if (coupon.description) return coupon.description;
+  return coupon.type === "fixed" ? `${formatCurrency(Number(coupon.value) || 0)} de descuento` : `${Number(coupon.value) || 0}% de descuento`;
+}
+
+function findCoupon(code) {
+  const normalized = normalizedCoupon(code);
+  return coupons.find((coupon) => normalizedCoupon(coupon.code) === normalized) || null;
+}
+
+function calculateCouponDiscount(coupon, total) {
+  if (!coupon || coupon.active === false) return 0;
+  const value = Number(coupon.value) || 0;
+  if (coupon.type === "fixed") return Math.min(total, Math.max(0, value));
+  if (coupon.type === "percent") return Math.min(total, Math.max(0, Math.round(total * value / 100)));
+  return 0;
+}
+
+function applyCouponFromInput(value) {
+  couponCode = normalizedCoupon(value);
+  appliedCoupon = null;
+  couponStatus = "";
+  if (!couponCode) return;
+  const coupon = findCoupon(couponCode);
+  if (!coupon) {
+    couponStatus = "Cupón no válido.";
+    return;
+  }
+  if (coupon.active === false) {
+    couponStatus = "Cupón inactivo.";
+    return;
+  }
+  appliedCoupon = coupon;
+  couponStatus = `Cupón aplicado: ${couponDescription(coupon)}.`;
 }
 
 function cartDiscountAmount() {
-  return hasValidCoupon() ? Math.round(cartTotalAmount() * validCouponDiscount) : 0;
+  return calculateCouponDiscount(appliedCoupon, cartTotalAmount());
 }
 
 function cartFinalAmount() {
@@ -975,8 +1076,9 @@ function cartFinalAmount() {
 }
 
 function selectedAgendaType() {
-  if (selectedWeek.includes("Pintura")) return "pintadas";
-  if (selectedWeek.includes("Escultura")) return "esculpidas";
+  if (selectedWeekType) return selectedWeekType;
+  if (selectedWeek.toLowerCase().includes("pintura")) return "pintadas";
+  if (selectedWeek.toLowerCase().includes("escultura")) return "esculpidas";
   return "";
 }
 
@@ -1020,11 +1122,11 @@ function cartMessage() {
   if (!cart.length && !selectedWeek) return encodeURIComponent("¡Hola Cata👩🏻‍🎨!\nMe interesa agendar✍🏻.\n\n¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨");
   const lines = cart.map((item) => `- ${item.quantity} x ${item.name} (${item.price})`);
   const agendaLine = selectedWeek || "por coordinar";
-  const productLines = lines.length ? lines.join("\n") : "Aun no seleccione productos.";
+  const productLines = lines.length ? lines.join("\n") : "Aún no seleccioné productos.";
   const discount = cartDiscountAmount();
   const finalTotal = cartFinalAmount();
   const deposit = Math.ceil(finalTotal / 2);
-  const discountLine = discount ? `\n🎟️Cupón aplicado: ${validCouponCode} (-${formatCurrency(discount)})\n` : "";
+  const discountLine = discount && appliedCoupon ? `\n🎟️Cupón aplicado: ${appliedCoupon.code} - ${couponDescription(appliedCoupon)} (-${formatCurrency(discount)})\n` : "";
   return encodeURIComponent(`¡Hola Cata👩🏻‍🎨!
 Me interesa agendar✍🏻:
 
@@ -1034,7 +1136,7 @@ ${discountLine}🟢Total del pedido: ${formatCurrency(finalTotal)}
 
 💸Abono 50% para agendar: ${formatCurrency(deposit)}
 
-Para la semana del: ${agendaLine} 📅
+📅${agendaLine}
 
 ¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨`);
 }
@@ -1043,7 +1145,7 @@ function renderCart() {
   cartCount.textContent = totalItems;
   cartEmpty.hidden = cart.length > 0;
   if (cartAgenda) {
-    cartAgenda.textContent = selectedWeek ? `Agenda: ${selectedWeek}` : "Agenda: sin semana seleccionada.";
+    cartAgenda.textContent = selectedWeek || "Agenda: sin semana seleccionada.";
   }
   const subtotal = cartTotalAmount();
   const discount = cartDiscountAmount();
@@ -1065,11 +1167,11 @@ function renderCart() {
     couponField?.classList.remove("valid", "invalid");
     if (!couponCode) {
       cartCouponMessage.textContent = "";
-    } else if (hasValidCoupon()) {
-      cartCouponMessage.textContent = "Cupón aplicado: 20% de descuento.";
+    } else if (appliedCoupon) {
+      cartCouponMessage.textContent = couponStatus;
       couponField?.classList.add("valid");
     } else {
-      cartCouponMessage.textContent = "Cupón no válido.";
+      cartCouponMessage.textContent = couponStatus || "Cupón no válido.";
       couponField?.classList.add("invalid");
     }
   }
@@ -1107,42 +1209,16 @@ function renderAgenda() {
     year: "numeric"
   });
   const monthOnlyFormatter = new Intl.DateTimeFormat("es-CL", { month: "long" });
+  const visibleMonthLabel = monthOnlyFormatter.format(visibleAgendaMonth);
   const year = visibleAgendaMonth.getFullYear();
   const month = visibleAgendaMonth.getMonth();
-  const lastDay = new Date(year, month + 1, 0).getDate();
-  const weekCandidates = [];
   const dateFormatter = new Intl.DateTimeFormat("es-CL", {
     weekday: "long",
     day: "numeric",
     month: "long"
   });
 
-  const firstCalendarDay = new Date(year, month, 1);
-  const firstOffset = (firstCalendarDay.getDay() + 6) % 7;
-  const firstVisibleDay = new Date(year, month, 1 - firstOffset);
-
-  for (let row = 0; row < 6; row += 1) {
-    const days = [];
-    for (let column = 0; column < 7; column += 1) {
-      const date = new Date(firstVisibleDay);
-      date.setDate(firstVisibleDay.getDate() + row * 7 + column);
-      days.push(date);
-    }
-
-    const inMonthDays = days.filter((date) => date.getMonth() === month);
-    if (!inMonthDays.length) continue;
-
-    const isFullWeek = days[0].getMonth() === month && days[6].getMonth() === month;
-    weekCandidates.push({ days, inMonthDays, isFullWeek });
-  }
-
-  const fullWeeks = weekCandidates.filter((week) => week.isFullWeek);
-  const partialWeeks = weekCandidates
-    .filter((week) => !week.isFullWeek)
-    .sort((a, b) => b.inMonthDays.length - a.inMonthDays.length);
-  const selectedWeeks = fullWeeks.length >= 4 ? fullWeeks.slice(0, 4) : [...fullWeeks, ...partialWeeks.slice(0, 4 - fullWeeks.length)];
-  const calendarRows = selectedWeeks
-    .sort((a, b) => a.days[0] - b.days[0])
+  const calendarRows = agendaWeeksForMonth(visibleAgendaMonth)
     .map((candidate, index) => {
       const weekStart = candidate.days[0];
       const weekEnd = candidate.days[6];
@@ -1151,55 +1227,72 @@ function renderAgenda() {
       const startRange = `${weekStart.getDate()} de ${monthOnlyFormatter.format(weekStart)}`;
       const endRange = `${weekEnd.getDate()} de ${monthOnlyFormatter.format(weekEnd)}`;
       const label = `${monthName} - Semana ${index + 1}: ${startText} al ${endText}`;
-      const key = `${year}-${month}-${index + 1}`;
+      const key = agendaKey(year, month, index + 1);
       const availability = agendaAvailability[key] || {};
-      return { days: candidate.days, week: { index: index + 1, startText, endText, startRange, endRange, label, availability } };
+      const isPast = isPastAgendaWeek(candidate.days);
+      return { days: candidate.days, week: { index: index + 1, startText, endText, startRange, endRange, label, availability, isPast } };
     });
 
   calendarMonthTitle.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-  calendarGrid.innerHTML = `
-    <div class="calendar-weeks">
-      ${calendarRows
-    .map(
-      ({ days, week }) => {
-        if (!week) {
-          return "";
-        }
+  calendarGrid.innerHTML = "";
+  const weeksWrapper = document.createElement("div");
+  weeksWrapper.className = "calendar-weeks";
 
-        const isFullyBooked = Object.keys(agendaTypes).every((typeKey) => week.availability[typeKey] === "full");
+  calendarRows.forEach(({ days, week }) => {
+    if (!week) return;
+    const isFullyBooked = week.isPast || Object.keys(agendaTypes).every((typeKey) => week.availability[typeKey] === "full");
+    const weekCard = document.createElement("div");
+    weekCard.className = `week-card calendar-week available ${isFullyBooked ? "fully-booked-week" : ""}`;
 
-        return `
-          <div class="week-card calendar-week available ${isFullyBooked ? "fully-booked-week" : ""}">
-            <span class="week-range">
-              <strong>Semana ${week.index}</strong>
-              <span>${week.startRange} al ${week.endRange}</span>
-            </span>
-            <span class="agenda-type-actions">
-              ${Object.entries(agendaTypes)
-                .map(([typeKey, typeLabel]) => {
-                  const isFull = week.availability[typeKey] === "full";
-                  const agendaLabel = `${week.label} - ${typeLabel}`;
-                  return `
-                    <button
-                      class="agenda-slot ${isFull ? "full-slot" : "available-slot"}"
-                      type="button"
-                      data-week="${agendaLabel}"
-                      ${isFull ? "disabled" : ""}
-                    >
-                      <span>${typeLabel}</span>
-                      <small>${isFull ? "Sin cupos" : "Cupos disponibles"}</small>
-                    </button>
-                  `;
-                })
-                .join("")}
-            </span>
-          </div>
-        `;
-      }
-    )
-    .join("")}
-    </div>
-  `;
+    const range = document.createElement("span");
+    range.className = "week-range";
+    const title = document.createElement("strong");
+    title.textContent = `Semana ${week.index}`;
+    const dates = document.createElement("span");
+    dates.textContent = `${week.startRange} al ${week.endRange}`;
+    range.append(title, dates);
+
+    const actions = document.createElement("span");
+    actions.className = "agenda-type-actions";
+
+    Object.entries(agendaTypes).forEach(([typeKey, typeLabel]) => {
+      const isFull = week.isPast || week.availability[typeKey] === "full";
+      const agendaLabel = agendaDisplayText({
+        weekIndex: week.index,
+        monthLabel: visibleMonthLabel,
+        weekStart: days[0],
+        weekEnd: days[6],
+        typeLabel,
+        monthOnlyFormatter
+      });
+      const button = document.createElement("button");
+      button.className = `agenda-slot ${isFull ? "full-slot" : "available-slot"}`;
+      button.type = "button";
+      button.dataset.week = agendaLabel;
+      button.dataset.agendaKey = agendaKey(year, month, week.index);
+      button.dataset.agendaType = typeKey;
+      button.disabled = isFull;
+
+      const label = document.createElement("span");
+      label.textContent = typeLabel;
+      const status = document.createElement("small");
+      status.textContent = week.isPast ? "Pasada" : isFull ? "Sin cupos" : "Cupos disponibles";
+      button.append(label, status);
+      actions.append(button);
+    });
+
+    weekCard.append(range, actions);
+    weeksWrapper.append(weekCard);
+  });
+
+  if (!weeksWrapper.children.length) {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.className = "agenda-selected";
+    emptyMessage.textContent = "No hay semanas disponibles para este mes.";
+    weeksWrapper.append(emptyMessage);
+  }
+
+  calendarGrid.append(weeksWrapper);
 
   if (calendarMonthSelect) {
     calendarMonthSelect.value = String(visibleAgendaMonth.getMonth());
@@ -1209,9 +1302,13 @@ function renderAgenda() {
     calendarYearSelect.value = String(visibleAgendaMonth.getFullYear());
   }
 
+  if (!selectedAgendaIsAvailable()) {
+    clearSelectedAgenda();
+  }
+
   agendaSelected.textContent = selectedWeek
-    ? `Semana elegida: ${selectedWeek}. Se confirmara por WhatsApp.`
-    : "Aun no has elegido semana.";
+    ? selectedWeek
+    : "Aún no has elegido semana.";
 
   calendarGrid.querySelectorAll(".agenda-slot").forEach((button) => {
     button.classList.toggle("selected", button.dataset.week === selectedWeek);
@@ -1234,16 +1331,14 @@ cartItems.addEventListener("click", (event) => {
 
 if (cartCouponApply && cartCoupon) {
   cartCouponApply.addEventListener("click", () => {
-    couponCode = normalizedCoupon(cartCoupon.value);
-    saveCoupon();
+    applyCouponFromInput(cartCoupon.value);
     renderCart();
   });
 
   cartCoupon.addEventListener("keydown", (event) => {
     if (event.key !== "Enter") return;
     event.preventDefault();
-    couponCode = normalizedCoupon(cartCoupon.value);
-    saveCoupon();
+    applyCouponFromInput(cartCoupon.value);
     renderCart();
   });
 }
@@ -1253,7 +1348,11 @@ if (calendarGrid) {
     const button = event.target.closest(".agenda-slot");
     if (!button || button.disabled) return;
     selectedWeek = button.dataset.week;
+    selectedWeekKey = button.dataset.agendaKey || "";
+    selectedWeekType = button.dataset.agendaType || "";
     localStorage.setItem("lapinfluencerAgenda", selectedWeek);
+    localStorage.setItem("lapinfluencerAgendaKey", selectedWeekKey);
+    localStorage.setItem("lapinfluencerAgendaType", selectedWeekType);
     renderAgenda();
     renderCart();
   });
@@ -1281,9 +1380,46 @@ function setupCalendarSelectors() {
   });
 }
 
+loadCoupons().then(renderCart);
 renderCart();
-setupCalendarSelectors();
-renderAgenda();
+initializeAgenda();
+
+async function loadCoupons() {
+  try {
+    const response = await fetch("cupones.json", { cache: "no-store" });
+    if (!response.ok) return;
+    const data = await response.json();
+    coupons = Array.isArray(data.coupons) ? data.coupons : [];
+  } catch (error) {
+    coupons = [];
+  }
+}
+
+async function initializeAgenda() {
+  await loadAgendaAvailability();
+  visibleAgendaMonth = new Date(firstAgendaMonth);
+  setupCalendarSelectors();
+  renderAgenda();
+}
+
+async function loadAgendaAvailability() {
+  if (!calendarGrid) return;
+  try {
+    const response = await fetch("agenda.json", { cache: "no-store" });
+    if (!response.ok) {
+      console.warn("No se pudo cargar agenda.json. La agenda se mostrará con disponibilidad por defecto.");
+      return;
+    }
+    const data = await response.json();
+    const nextAvailability = data.availability || data;
+    if (nextAvailability && typeof nextAvailability === "object") {
+      agendaAvailability = nextAvailability;
+    }
+  } catch (error) {
+    // En archivo local algunos navegadores bloquean agenda.json; GitHub Pages lo carga normalmente.
+    console.warn("agenda.json no cargó. Si abriste la web con file://, prueba con un servidor local. La agenda se mostrará con disponibilidad por defecto.", error);
+  }
+}
 
 function updateMonthOptions() {
   if (!calendarMonthSelect || !calendarYearSelect) return;
@@ -1294,7 +1430,6 @@ function updateMonthOptions() {
   monthNames.forEach((name, monthIndex) => {
     const monthDate = new Date(selectedYear, monthIndex, 1);
     if (monthDate < firstAgendaMonth || monthDate > lastAgendaMonth) return;
-    if (!monthHasAvailability(monthDate)) return;
     const label = name.charAt(0).toUpperCase() + name.slice(1);
     calendarMonthSelect.insertAdjacentHTML(
       "beforeend",
@@ -1305,8 +1440,7 @@ function updateMonthOptions() {
   const visibleStillAllowed =
     visibleAgendaMonth.getFullYear() === selectedYear &&
     visibleAgendaMonth >= firstAgendaMonth &&
-    visibleAgendaMonth <= lastAgendaMonth &&
-    monthHasAvailability(visibleAgendaMonth);
+    visibleAgendaMonth <= lastAgendaMonth;
 
   if (visibleStillAllowed) {
     calendarMonthSelect.value = String(visibleAgendaMonth.getMonth());

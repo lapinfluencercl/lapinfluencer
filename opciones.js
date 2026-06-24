@@ -518,7 +518,7 @@ function renderVariantChoice(product, option) {
 
   return `
     <label class="variant-choice">
-      <span>Selecciona una opcion</span>
+      <span>Selecciona una opción</span>
       <select data-variant-select>
         <option value="">Seleccionar</option>
         ${option.variants
@@ -704,17 +704,18 @@ const cartCouponApply = document.querySelector("#cart-coupon-apply");
 const cartCouponMessage = document.querySelector("#cart-coupon-message");
 let cart = JSON.parse(localStorage.getItem("lapinfluencerCart") || "[]");
 let selectedWeek = localStorage.getItem("lapinfluencerAgenda") || "";
-let couponCode = localStorage.getItem("lapinfluencerCoupon") || "";
-const validCouponCode = "1ERACOMPRAWEB20";
-const validCouponDiscount = 0.2;
+let couponCode = "";
+let appliedCoupon = null;
+let couponStatus = "";
+let coupons = [];
 
 if (!category || !product) {
   titleEl.textContent = "Producto no encontrado";
-  summaryEl.textContent = "Vuelve al catalogo para elegir una opcion disponible.";
+  summaryEl.textContent = "Vuelve al catálogo para elegir una opción disponible.";
   optionsEl.innerHTML = "";
 } else {
   categoryBackLink.href = groupSlug ? `opciones.html?categoria=${categoryKey}&producto=${productSlug}` : `categoria.html?categoria=${categoryKey}`;
-  categoryBackLink.textContent = groupSlug ? "Atras a tipos de lienzo" : "Atras a productos";
+  categoryBackLink.textContent = groupSlug ? "Atrás a tipos de lienzo" : "Atrás a productos";
   categoryEl.textContent = category.label;
   titleEl.textContent = product.name;
   summaryEl.textContent = product.summary;
@@ -755,20 +756,12 @@ if (!category || !product) {
       optionsEl.insertAdjacentHTML("beforeend", `<aside class="catalog-note">${product.notice}</aside>`);
     }
 
-    optionsEl.insertAdjacentHTML("beforeend", `<aside class="catalog-note">Para medidas especiales, ideas personalizadas o detalles fuera del catalogo, agrega la opcion mas cercana y lo coordinamos por WhatsApp.</aside>`);
+    optionsEl.insertAdjacentHTML("beforeend", `<aside class="catalog-note">Para medidas especiales, ideas personalizadas o detalles fuera del catálogo, agrega la opción más cercana y lo coordinamos por WhatsApp.</aside>`);
   }
 }
 
 function saveCart() {
   localStorage.setItem("lapinfluencerCart", JSON.stringify(cart));
-}
-
-function saveCoupon() {
-  if (couponCode) {
-    localStorage.setItem("lapinfluencerCoupon", couponCode);
-  } else {
-    localStorage.removeItem("lapinfluencerCoupon");
-  }
 }
 
 function priceAmount(price) {
@@ -787,12 +780,45 @@ function normalizedCoupon(value) {
   return String(value || "").trim().toUpperCase();
 }
 
-function hasValidCoupon() {
-  return normalizedCoupon(couponCode) === validCouponCode;
+function couponDescription(coupon) {
+  if (!coupon) return "";
+  if (coupon.description) return coupon.description;
+  return coupon.type === "fixed" ? `${formatCurrency(Number(coupon.value) || 0)} de descuento` : `${Number(coupon.value) || 0}% de descuento`;
+}
+
+function findCoupon(code) {
+  const normalized = normalizedCoupon(code);
+  return coupons.find((coupon) => normalizedCoupon(coupon.code) === normalized) || null;
+}
+
+function calculateCouponDiscount(coupon, total) {
+  if (!coupon || coupon.active === false) return 0;
+  const value = Number(coupon.value) || 0;
+  if (coupon.type === "fixed") return Math.min(total, Math.max(0, value));
+  if (coupon.type === "percent") return Math.min(total, Math.max(0, Math.round(total * value / 100)));
+  return 0;
+}
+
+function applyCouponFromInput(value) {
+  couponCode = normalizedCoupon(value);
+  appliedCoupon = null;
+  couponStatus = "";
+  if (!couponCode) return;
+  const coupon = findCoupon(couponCode);
+  if (!coupon) {
+    couponStatus = "Cupón no válido.";
+    return;
+  }
+  if (coupon.active === false) {
+    couponStatus = "Cupón inactivo.";
+    return;
+  }
+  appliedCoupon = coupon;
+  couponStatus = `Cupón aplicado: ${couponDescription(coupon)}.`;
 }
 
 function cartDiscountAmount() {
-  return hasValidCoupon() ? Math.round(cartTotalAmount() * validCouponDiscount) : 0;
+  return calculateCouponDiscount(appliedCoupon, cartTotalAmount());
 }
 
 function cartFinalAmount() {
@@ -845,11 +871,11 @@ function cartMessage() {
   if (!cart.length && !selectedWeek) return encodeURIComponent("¡Hola Cata👩🏻‍🎨!\nMe interesa agendar✍🏻.\n\n¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨");
   const lines = cart.map((item) => `- ${item.quantity} x ${item.name} (${item.price})`);
   const agendaLine = selectedWeek || "por coordinar";
-  const productLines = lines.length ? lines.join("\n") : "Aun no seleccione productos.";
+  const productLines = lines.length ? lines.join("\n") : "Aún no seleccioné productos.";
   const discount = cartDiscountAmount();
   const finalTotal = cartFinalAmount();
   const deposit = Math.ceil(finalTotal / 2);
-  const discountLine = discount ? `\n🎟️Cupón aplicado: ${validCouponCode} (-${formatCurrency(discount)})\n` : "";
+  const discountLine = discount && appliedCoupon ? `\n🎟️Cupón aplicado: ${appliedCoupon.code} - ${couponDescription(appliedCoupon)} (-${formatCurrency(discount)})\n` : "";
   return encodeURIComponent(`¡Hola Cata👩🏻‍🎨!
 Me interesa agendar✍🏻:
 
@@ -891,11 +917,11 @@ function renderCart() {
     couponField?.classList.remove("valid", "invalid");
     if (!couponCode) {
       cartCouponMessage.textContent = "";
-    } else if (hasValidCoupon()) {
-      cartCouponMessage.textContent = "Cupón aplicado: 20% de descuento.";
+    } else if (appliedCoupon) {
+      cartCouponMessage.textContent = couponStatus;
       couponField?.classList.add("valid");
     } else {
-      cartCouponMessage.textContent = "Cupón no válido.";
+      cartCouponMessage.textContent = couponStatus || "Cupón no válido.";
       couponField?.classList.add("invalid");
     }
   }
@@ -972,18 +998,28 @@ cartItems.addEventListener("click", (event) => {
 
 if (cartCouponApply && cartCoupon) {
   cartCouponApply.addEventListener("click", () => {
-    couponCode = normalizedCoupon(cartCoupon.value);
-    saveCoupon();
+    applyCouponFromInput(cartCoupon.value);
     renderCart();
   });
 
   cartCoupon.addEventListener("keydown", (event) => {
     if (event.key !== "Enter") return;
     event.preventDefault();
-    couponCode = normalizedCoupon(cartCoupon.value);
-    saveCoupon();
+    applyCouponFromInput(cartCoupon.value);
     renderCart();
   });
 }
 
+loadCoupons().then(renderCart);
 renderCart();
+
+async function loadCoupons() {
+  try {
+    const response = await fetch("cupones.json", { cache: "no-store" });
+    if (!response.ok) return;
+    const data = await response.json();
+    coupons = Array.isArray(data.coupons) ? data.coupons : [];
+  } catch (error) {
+    coupons = [];
+  }
+}
