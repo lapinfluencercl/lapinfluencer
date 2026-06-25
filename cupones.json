@@ -6,6 +6,13 @@
       "value": 20,
       "active": false,
       "description": "20% de descuento"
-    }
+    },
+     {
+      "code": "REGALO10",
+      "type": "percent",
+      "value": 10,
+      "active": true,
+      "description": "10% de descuento"
+       }
   ]
 }
