@@ -4,7 +4,7 @@
       "code": "1ERACOMPRAWEB20",
       "type": "percent",
       "value": 20,
-      "active": true,
+      "active": false,
       "description": "20% de descuento"
     }
   ]
