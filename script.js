@@ -581,7 +581,7 @@ function agendaRangeText(weekStart, weekEnd, monthOnlyFormatter) {
 }
 
 function agendaDisplayText({ weekIndex, monthLabel, weekStart, weekEnd, typeLabel, monthOnlyFormatter }) {
-  return `Agendando para: semana ${weekIndex} de ${monthLabel}, del ${agendaRangeText(weekStart, weekEnd, monthOnlyFormatter)} — cupo ${typeLabel.toLowerCase()}`;
+  return `Agendado para: semana ${weekIndex} de ${monthLabel} (${weekStart.getDate()}-${weekEnd.getDate()}) - cupo ${typeLabel.toLowerCase()}`;
 }
 
 function clearSelectedAgenda() {
@@ -1100,6 +1100,21 @@ function cartTypeWarningHtml(warning) {
   return `${warning}<br><a href="#agenda">Cambiar cupo en Agenda</a>`;
 }
 
+function cartNeedsAgendaDate() {
+  return cart.length > 0 && !selectedWeek;
+}
+
+function scrollToAgendaFromCart() {
+  cartDrawer.hidden = true;
+  const agendaSection = document.querySelector("#agenda");
+  if (agendaSection) {
+    agendaSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  if (window.location.hash !== "#agenda") {
+    history.pushState(null, "", "#agenda");
+  }
+}
+
 function addToCart(name, price, category = currentCategory) {
   const existing = cart.find((item) => item.name === name && item.price === price && item.category === category);
   if (existing) {
@@ -1134,7 +1149,7 @@ ${productLines}
 
 ${discountLine}🟢Total del pedido: ${formatCurrency(finalTotal)}
 
-💸Abono 50% para agendar: ${formatCurrency(deposit)}
+💸50% para agendar: ${formatCurrency(deposit)}
 
 📅${agendaLine}
 
@@ -1151,13 +1166,15 @@ function renderCart() {
   const discount = cartDiscountAmount();
   const finalTotal = cartFinalAmount();
   if (cartTotal) {
-    cartTotal.textContent = discount ? `Subtotal: ${formatCurrency(subtotal)} | Descuento: -${formatCurrency(discount)}` : `Subtotal: ${formatCurrency(subtotal)}`;
+    cartTotal.hidden = !discount;
+    cartTotal.textContent = discount ? `Descuento aplicado: -${formatCurrency(discount)}` : "";
   }
   if (cartFinal) {
     cartFinal.textContent = `Total del pedido: ${formatCurrency(finalTotal)}`;
   }
   if (cartDeposit) {
-    cartDeposit.textContent = `Abono 50% para agendar: ${formatCurrency(Math.ceil(finalTotal / 2))}`;
+    cartDeposit.hidden = true;
+    cartDeposit.textContent = "";
   }
   if (cartCoupon) {
     cartCoupon.value = couponCode;
@@ -1176,14 +1193,25 @@ function renderCart() {
     }
   }
   if (cartWarning) {
-    const warning = cartTypeWarning();
+    const warning = cartNeedsAgendaDate() ? "Selecciona fecha a agendar" : cartTypeWarning();
     cartWarning.hidden = !warning;
-    cartWarning.innerHTML = cartTypeWarningHtml(warning);
+    cartWarning.innerHTML = cartNeedsAgendaDate()
+      ? `${warning}<br><a href="#agenda">Ir a Agenda</a>`
+      : cartTypeWarningHtml(warning);
   }
+  const needsAgendaDate = cartNeedsAgendaDate();
   const warning = cartTypeWarning();
   cartWhatsapp.classList.toggle("disabled", Boolean(warning));
   cartWhatsapp.setAttribute("aria-disabled", warning ? "true" : "false");
-  cartWhatsapp.href = warning ? "#" : `https://wa.me/56985781006?text=${cartMessage()}`;
+  if (needsAgendaDate) {
+    cartWhatsapp.href = "#agenda";
+    cartWhatsapp.target = "_self";
+    cartWhatsapp.textContent = "Seleccionar fecha a agendar";
+  } else {
+    cartWhatsapp.target = warning ? "_self" : "_blank";
+    cartWhatsapp.href = warning ? "#" : `https://wa.me/56985781006?text=${cartMessage()}`;
+    cartWhatsapp.textContent = "Agendar pedido";
+  }
 
   cartItems.innerHTML = cart
     .map(
@@ -1329,6 +1357,19 @@ cartItems.addEventListener("click", (event) => {
   removeFromCart(Number(button.dataset.removeIndex));
 });
 
+cartWarning?.addEventListener("click", (event) => {
+  const link = event.target.closest('a[href="#agenda"]');
+  if (!link) return;
+  event.preventDefault();
+  scrollToAgendaFromCart();
+});
+
+cartWhatsapp.addEventListener("click", (event) => {
+  if (!cartNeedsAgendaDate()) return;
+  event.preventDefault();
+  scrollToAgendaFromCart();
+});
+
 if (cartCouponApply && cartCoupon) {
   cartCouponApply.addEventListener("click", () => {
     applyCouponFromInput(cartCoupon.value);
@@ -1355,6 +1396,9 @@ if (calendarGrid) {
     localStorage.setItem("lapinfluencerAgendaType", selectedWeekType);
     renderAgenda();
     renderCart();
+    if (cart.length) {
+      cartDrawer.hidden = false;
+    }
   });
 }
 

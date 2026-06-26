@@ -336,6 +336,10 @@ a {
   font-weight: 900;
 }
 
+.cart-deposit {
+  display: none;
+}
+
 .cart-final,
 .cart-deposit {
   font-size: 1.02rem;
@@ -394,8 +398,8 @@ a {
 
 .cart-warning {
   color: #643434;
-  background: #ffeca2;
-  border: 1px solid #ffa279;
+  background: #ffd5d5;
+  border: 2px solid #d65a5a;
   border-radius: 8px;
 }
 
@@ -415,6 +419,7 @@ a {
   color: #643434;
   text-decoration: none;
   background: #ffa279;
+  border: 1px solid #d65a5a;
   border-radius: 8px;
 }
 
