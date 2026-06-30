@@ -505,6 +505,14 @@ let appliedCoupon = null;
 let couponStatus = "";
 let coupons = [];
 let agendaCompatibilityNotice = "";
+const EMOJI_ARTIST = "\u{1F469}\u{1F3FB}\u200D\u{1F3A8}";
+const EMOJI_WRITE = "\u270D\u{1F3FB}";
+const EMOJI_TICKET = "\u{1F39F}\uFE0F";
+const EMOJI_GREEN = "\u{1F7E2}";
+const EMOJI_MONEY = "\u{1F4B8}";
+const EMOJI_CALENDAR = "\u{1F4C5}";
+const EMOJI_SPIRAL_CALENDAR = "\u{1F5D3}\uFE0F";
+const EMOJI_SPARKLES = "\u2728";
 const today = new Date();
 const firstAgendaMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 const lastAgendaMonth = new Date(today.getFullYear(), today.getMonth() + 17, 1);
@@ -1511,7 +1519,7 @@ function removeFromCart(index) {
 
 function cartMessage() {
   if (!cart.length) {
-    const emptyMessage = "¡Hola Cata👩🏻‍🎨!\nMe interesa agendar✍🏻.\n\n¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨";
+    const emptyMessage = `¡Hola Cata${EMOJI_ARTIST}!\nMe interesa agendar${EMOJI_WRITE}.\n\n¡Quedo atent@ a tu confirmación, muchas gracias! ${EMOJI_SPIRAL_CALENDAR}${EMOJI_SPARKLES}`;
     return encodeURIComponent(emptyMessage);
   }
   const lines = cart.map((item) => `- ${item.quantity} x ${cleanCartItemName(item.name)} (${item.price})`);
@@ -1520,19 +1528,19 @@ function cartMessage() {
   const discount = cartDiscountAmount();
   const finalTotal = cartFinalAmount();
   const deposit = Math.ceil(finalTotal / 2);
-  const discountLine = discount && appliedCoupon ? `\n🎟️Cupón aplicado: ${appliedCoupon.code} - ${couponDescription(appliedCoupon)} (-${formatCurrency(discount)})\n` : "";
-  const message = `¡Hola Cata👩🏻‍🎨!
-Me interesa agendar✍🏻:
+  const discountLine = discount && appliedCoupon ? `\n${EMOJI_TICKET}Cupón aplicado: ${appliedCoupon.code} - ${couponDescription(appliedCoupon)} (-${formatCurrency(discount)})\n` : "";
+  const message = `¡Hola Cata${EMOJI_ARTIST}!
+Me interesa agendar${EMOJI_WRITE}:
 
 ${productLines}
 
-${discountLine}🟢Total del pedido: ${formatCurrency(finalTotal)}
+${discountLine}${EMOJI_GREEN}Total del pedido: ${formatCurrency(finalTotal)}
 
-💸50% para agendar: ${formatCurrency(deposit)}
+${EMOJI_MONEY}50% para agendar: ${formatCurrency(deposit)}
 
-📅${agendaLine}
+${EMOJI_CALENDAR}${agendaLine}
 
-¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨`;
+¡Quedo atent@ a tu confirmación, muchas gracias! ${EMOJI_SPIRAL_CALENDAR}${EMOJI_SPARKLES}`;
   return encodeURIComponent(message);
 }
 function renderCart() {
