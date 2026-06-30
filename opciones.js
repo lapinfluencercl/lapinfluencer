@@ -694,6 +694,7 @@ const cartCount = document.querySelector("#cart-count");
 const cartWhatsapp = document.querySelector("#cart-whatsapp");
 const cartOpenButton = document.querySelector("#cart-open-button");
 const cartCloseButton = document.querySelector("#cart-close-button");
+const cartContinueButton = document.querySelector("#cart-continue-button");
 const cartAgenda = document.querySelector("#cart-agenda");
 const cartTotal = document.querySelector("#cart-total");
 const cartFinal = document.querySelector("#cart-final");
@@ -704,10 +705,114 @@ const cartCouponApply = document.querySelector("#cart-coupon-apply");
 const cartCouponMessage = document.querySelector("#cart-coupon-message");
 let cart = JSON.parse(localStorage.getItem("lapinfluencerCart") || "[]");
 let selectedWeek = localStorage.getItem("lapinfluencerAgenda") || "";
+let selectedWeekType = localStorage.getItem("lapinfluencerAgendaType") || "";
+let selectedAgendaSlots = JSON.parse(localStorage.getItem("lapinfluencerAgendaSlots") || "{}");
 let couponCode = "";
 let appliedCoupon = null;
 let couponStatus = "";
 let coupons = [];
+let agendaCompatibilityNotice = "";
+const today = new Date();
+const firstAgendaMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+const lastAgendaMonth = new Date(today.getFullYear(), today.getMonth() + 17, 1);
+let agendaAvailability = {};
+const agendaTypes = {
+  pintadas: "Pintura",
+  esculpidas: "Escultura"
+};
+
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function agendaWeeksForMonth(monthDate) {
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const weekCandidates = [];
+  const firstCalendarDay = new Date(year, month, 1);
+  const firstOffset = (firstCalendarDay.getDay() + 6) % 7;
+  const firstVisibleDay = new Date(year, month, 1 - firstOffset);
+
+  for (let row = 0; row < 6; row += 1) {
+    const days = [];
+    for (let column = 0; column < 7; column += 1) {
+      const date = new Date(firstVisibleDay);
+      date.setDate(firstVisibleDay.getDate() + row * 7 + column);
+      days.push(date);
+    }
+
+    const inMonthDays = days.filter((date) => date.getMonth() === month);
+    if (!inMonthDays.length) continue;
+
+    const isFullWeek = days[0].getMonth() === month && days[6].getMonth() === month;
+    weekCandidates.push({ days, inMonthDays, isFullWeek });
+  }
+
+  const fullWeeks = weekCandidates.filter((week) => week.isFullWeek);
+  const partialWeeks = weekCandidates
+    .filter((week) => !week.isFullWeek)
+    .sort((a, b) => b.inMonthDays.length - a.inMonthDays.length);
+
+  return (fullWeeks.length >= 4 ? fullWeeks.slice(0, 4) : [...fullWeeks, ...partialWeeks.slice(0, 4 - fullWeeks.length)])
+    .sort((a, b) => a.days[0] - b.days[0]);
+}
+
+function isPastAgendaWeek(days) {
+  return startOfDay(days[6]) < startOfDay(new Date());
+}
+
+function agendaKey(year, monthIndex, week) {
+  return `${year}-${String(monthIndex + 1).padStart(2, "0")}-semana-${week}`;
+}
+
+function agendaSlotData({ weekIndex, monthLabel, weekStart, weekEnd, typeKey }) {
+  const typeLabel = agendaTypes[typeKey];
+  const base = `semana ${weekIndex} de ${monthLabel} (${weekStart.getDate()}-${weekEnd.getDate()})`;
+  return {
+    type: typeKey,
+    typeLabel,
+    base,
+    text: `Agendado para: ${base} - cupo ${typeLabel.toLowerCase()}`
+  };
+}
+
+function monthRange() {
+  const months = [];
+  const cursor = new Date(firstAgendaMonth);
+  while (cursor <= lastAgendaMonth) {
+    months.push(new Date(cursor));
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+  return months;
+}
+
+function weekSlotInfo(monthDate, candidate, index, typeKey) {
+  const monthLabel = new Intl.DateTimeFormat("es-CL", { month: "long" }).format(monthDate);
+  const key = agendaKey(monthDate.getFullYear(), monthDate.getMonth(), index + 1);
+  const availability = agendaAvailability[key] || {};
+  const isPast = isPastAgendaWeek(candidate.days);
+  const isFull = availability[typeKey] === "full";
+  const data = agendaSlotData({
+    weekIndex: index + 1,
+    monthLabel,
+    weekStart: candidate.days[0],
+    weekEnd: candidate.days[6],
+    typeKey
+  });
+  return { available: !isPast && !isFull, data };
+}
+
+function findRecommendedMixedWeek() {
+  for (const monthDate of monthRange()) {
+    const weeks = agendaWeeksForMonth(monthDate);
+    for (let index = 0; index < weeks.length; index += 1) {
+      const pintura = weekSlotInfo(monthDate, weeks[index], index, "pintadas");
+      const escultura = weekSlotInfo(monthDate, weeks[index], index, "esculpidas");
+      if (pintura.available && escultura.available) return { pintura, escultura };
+    }
+  }
+  return null;
+}
 
 if (!category || !product) {
   titleEl.textContent = "Producto no encontrado";
@@ -826,8 +931,9 @@ function cartFinalAmount() {
 }
 
 function selectedAgendaType() {
-  if (selectedWeek.includes("Pintura")) return "pintadas";
-  if (selectedWeek.includes("Escultura")) return "esculpidas";
+  if (selectedWeekType) return selectedWeekType;
+  if (selectedWeek.toLowerCase().includes("pintura")) return "pintadas";
+  if (selectedWeek.toLowerCase().includes("escultura")) return "esculpidas";
   return "";
 }
 
@@ -835,7 +941,79 @@ function categoryLabel(category) {
   return category === "pintadas" ? "Pintura" : category === "esculpidas" ? "Escultura" : "sin tipo";
 }
 
+function cartCategoryMode() {
+  const categories = [...new Set(cart.map((item) => item.category).filter(Boolean))];
+  if (!categories.length) return "";
+  if (categories.length > 1) return "mixed";
+  return categories[0];
+}
+
+function cartCategoryWarning() {
+  const mode = cartCategoryMode();
+  if (mode === "mixed") {
+    return "Tu pedido incluye un producto pintado y otro esculpido. Te recomendamos tomar la misma fecha para ambos cupos, así la entrega se realiza de forma conjunta.";
+  }
+  return "";
+}
+
+function agendaTypeAllowedForCart(typeKey) {
+  const mode = cartCategoryMode();
+  if (!mode) return true;
+  if (mode === "mixed") return false;
+  return mode === typeKey;
+}
+
+function selectedAgendaMatchesCart() {
+  const agendaType = selectedAgendaType();
+  const required = requiredAgendaTypes();
+  if (!required.length) return true;
+  const selectedTypes = Object.keys(selectedAgendaSlots).filter((typeKey) => selectedAgendaSlots[typeKey]?.text);
+  if (selectedTypes.length) return selectedTypes.every((typeKey) => required.includes(typeKey));
+  if (!selectedWeek || !agendaType) return true;
+  return agendaTypeAllowedForCart(agendaType);
+}
+
+function clearSelectedAgenda() {
+  selectedWeek = "";
+  selectedWeekType = "";
+  selectedAgendaSlots = {};
+  localStorage.removeItem("lapinfluencerAgenda");
+  localStorage.removeItem("lapinfluencerAgendaKey");
+  localStorage.removeItem("lapinfluencerAgendaType");
+  localStorage.removeItem("lapinfluencerAgendaSlots");
+}
+
+function cleanCartItemName(name) {
+  return String(name || "")
+    .replace(/\s*-\s*(?:Â¿|¿)?Qu[eé] incluye\??/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function saveAgendaSlots() {
+  localStorage.setItem("lapinfluencerAgendaSlots", JSON.stringify(selectedAgendaSlots));
+}
+
+function selectAgendaSlot(typeKey, slot) {
+  selectedAgendaSlots[typeKey] = slot;
+  saveAgendaSlots();
+
+  if (requiredAgendaTypes().length === 1) {
+    selectedWeek = slot.text;
+    selectedWeekType = typeKey;
+    localStorage.setItem("lapinfluencerAgenda", selectedWeek);
+    localStorage.setItem("lapinfluencerAgendaType", selectedWeekType);
+  } else {
+    selectedWeek = "";
+    selectedWeekType = "";
+    localStorage.removeItem("lapinfluencerAgenda");
+    localStorage.removeItem("lapinfluencerAgendaType");
+  }
+}
+
 function cartTypeWarning() {
+  const mode = cartCategoryMode();
+  if (mode === "mixed" && !agendaSelectionsComplete()) return "";
   const agendaType = selectedAgendaType();
   if (!agendaType || !cart.length) return "";
   const wrongItems = cart.filter((item) => item.category && item.category !== agendaType);
@@ -849,12 +1027,69 @@ function cartTypeWarningHtml(warning) {
   return `${warning}<br><a href="index.html#agenda">Cambiar cupo en Agenda</a>`;
 }
 
+function cartNeedsAgendaDate() {
+  return cart.length > 0 && !agendaSelectionsComplete();
+}
+
+function requiredAgendaTypes() {
+  const mode = cartCategoryMode();
+  if (mode === "mixed") return ["pintadas", "esculpidas"];
+  if (mode) return [mode];
+  return [];
+}
+
+function agendaSelectionsComplete() {
+  const required = requiredAgendaTypes();
+  if (!required.length) return false;
+  if (required.length === 1 && selectedWeek && selectedAgendaType() === required[0]) return true;
+  return required.every((typeKey) => selectedAgendaSlots[typeKey]?.text);
+}
+
+function cartAgendaHtml() {
+  const mode = cartCategoryMode();
+  if (!cart.length) return "";
+  if (mode === "mixed") {
+    const pintura = selectedAgendaSlots.pintadas?.base || "falta seleccionar fecha";
+    const escultura = selectedAgendaSlots.esculpidas?.base || "falta seleccionar fecha";
+    if (!agendaSelectionsComplete()) {
+      const recommended = findRecommendedMixedWeek();
+      const recommendation = recommended
+        ? `<br><strong>Semana recomendada: ${recommended.pintura.data.base}</strong>
+          <button class="button primary mixed-cart-action" type="button" data-cart-agenda-both data-pintura='${JSON.stringify(recommended.pintura.data)}' data-escultura='${JSON.stringify(recommended.escultura.data)}'>Agendar ambos cupos en esta fecha</button>
+          <button class="button secondary mixed-cart-action" type="button" data-cart-agenda-separate>Quiero agendar por separado</button>`
+        : `<br><span>No encontré una semana con ambos cupos disponibles. Puedes agendar por separado.</span>
+          <button class="button secondary mixed-cart-action" type="button" data-cart-agenda-separate>Quiero agendar por separado</button>`;
+      return `${cartCategoryWarning()}${recommendation}`;
+    }
+    return `Agendado para:<br>• Pintura: ${pintura}<br>• Escultura: ${escultura}<br>Tu pedido será enviado cuando ambos productos estén listos.<button class="button secondary mixed-cart-action" type="button" data-cart-agenda-clear>Cambiar fecha seleccionada</button>`;
+  }
+  const typeKey = requiredAgendaTypes()[0];
+  const selectedText = selectedAgendaSlots[typeKey]?.text || selectedWeek;
+  return selectedText
+    ? `${selectedText}<button class="button secondary mixed-cart-action" type="button" data-cart-agenda-clear>Cambiar fecha seleccionada</button>`
+    : "";
+}
+
+function whatsappAgendaText() {
+  const mode = cartCategoryMode();
+  if (mode === "mixed") {
+    return `Agenda:\n- Pintura: ${selectedAgendaSlots.pintadas?.base || "por coordinar"}\n- Escultura: ${selectedAgendaSlots.esculpidas?.base || "por coordinar"}\n\nTu pedido será enviado cuando ambos productos estén listos.`;
+  }
+  const typeKey = requiredAgendaTypes()[0];
+  return selectedAgendaSlots[typeKey]?.text || selectedWeek || "por coordinar";
+}
+
 function addToCart(name, price, category = categoryKey) {
+  name = cleanCartItemName(name);
   const existing = cart.find((item) => item.name === name && item.price === price && item.category === category);
   if (existing) {
     existing.quantity += 1;
   } else {
     cart.push({ name, price, quantity: 1, category });
+  }
+  if (!selectedAgendaMatchesCart()) {
+    clearSelectedAgenda();
+    agendaCompatibilityNotice = "Selecciona una fecha compatible con tu pedido.";
   }
   saveCart();
   renderCart();
@@ -863,51 +1098,69 @@ function addToCart(name, price, category = categoryKey) {
 
 function removeFromCart(index) {
   cart.splice(index, 1);
+  if (!selectedAgendaMatchesCart()) {
+    clearSelectedAgenda();
+    agendaCompatibilityNotice = "Selecciona una fecha compatible con tu pedido.";
+  }
   saveCart();
   renderCart();
 }
 
 function cartMessage() {
-  if (!cart.length && !selectedWeek) return encodeURIComponent("¡Hola Cata👩🏻‍🎨!\nMe interesa agendar✍🏻.\n\n¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨");
-  const lines = cart.map((item) => `- ${item.quantity} x ${item.name} (${item.price})`);
-  const agendaLine = selectedWeek || "por coordinar";
+  if (!cart.length && !selectedWeek) {
+    const emptyMessage = "¡Hola Cata👩🏻‍🎨!\nMe interesa agendar✍🏻.\n\n¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨";
+    return encodeURIComponent(emptyMessage);
+  }
+  const lines = cart.map((item) => `- ${item.quantity} x ${cleanCartItemName(item.name)} (${item.price})`);
+  const agendaLine = whatsappAgendaText();
   const productLines = lines.length ? lines.join("\n") : "Aún no seleccioné productos.";
   const discount = cartDiscountAmount();
   const finalTotal = cartFinalAmount();
   const deposit = Math.ceil(finalTotal / 2);
   const discountLine = discount && appliedCoupon ? `\n🎟️Cupón aplicado: ${appliedCoupon.code} - ${couponDescription(appliedCoupon)} (-${formatCurrency(discount)})\n` : "";
-  return encodeURIComponent(`¡Hola Cata👩🏻‍🎨!
+  const message = `¡Hola Cata👩🏻‍🎨!
 Me interesa agendar✍🏻:
 
 ${productLines}
 
 ${discountLine}🟢Total del pedido: ${formatCurrency(finalTotal)}
 
-💸Abono 50% para agendar: ${formatCurrency(deposit)}
+💸50% para agendar: ${formatCurrency(deposit)}
 
-Para la semana del: ${agendaLine} 📅
+📅${agendaLine}
 
-¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨`);
+¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨`;
+  return encodeURIComponent(message);
 }
 function renderCart() {
+  selectedWeek = localStorage.getItem("lapinfluencerAgenda") || "";
+  selectedWeekType = localStorage.getItem("lapinfluencerAgendaType") || "";
+  selectedAgendaSlots = JSON.parse(localStorage.getItem("lapinfluencerAgendaSlots") || "{}");
+  if (!selectedAgendaMatchesCart()) {
+    clearSelectedAgenda();
+    agendaCompatibilityNotice = "Selecciona una fecha compatible con tu pedido.";
+  }
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   cartCount.textContent = totalItems;
   cartEmpty.hidden = cart.length > 0;
   if (cartAgenda) {
-    selectedWeek = localStorage.getItem("lapinfluencerAgenda") || "";
-    cartAgenda.textContent = selectedWeek ? `Agenda: ${selectedWeek}` : "Agenda: sin semana seleccionada.";
+    const agendaHtml = cartAgendaHtml();
+    cartAgenda.hidden = !agendaHtml;
+    cartAgenda.innerHTML = agendaHtml;
   }
   const subtotal = cartTotalAmount();
   const discount = cartDiscountAmount();
   const finalTotal = cartFinalAmount();
   if (cartTotal) {
-    cartTotal.textContent = discount ? `Subtotal: ${formatCurrency(subtotal)} | Descuento: -${formatCurrency(discount)}` : `Subtotal: ${formatCurrency(subtotal)}`;
+    cartTotal.hidden = !discount;
+    cartTotal.textContent = discount ? `Descuento aplicado: -${formatCurrency(discount)}` : "";
   }
   if (cartFinal) {
     cartFinal.textContent = `Total del pedido: ${formatCurrency(finalTotal)}`;
   }
   if (cartDeposit) {
-    cartDeposit.textContent = `Abono 50% para agendar: ${formatCurrency(Math.ceil(finalTotal / 2))}`;
+    cartDeposit.hidden = true;
+    cartDeposit.textContent = "";
   }
   if (cartCoupon) {
     cartCoupon.value = couponCode;
@@ -926,21 +1179,35 @@ function renderCart() {
     }
   }
   if (cartWarning) {
-    const warning = cartTypeWarning();
+    const warning = cartNeedsAgendaDate() ? "" : cartTypeWarning() || agendaCompatibilityNotice;
     cartWarning.hidden = !warning;
     cartWarning.innerHTML = cartTypeWarningHtml(warning);
   }
+  const needsAgendaDate = cartNeedsAgendaDate();
   const warning = cartTypeWarning();
-  cartWhatsapp.classList.toggle("disabled", Boolean(warning));
-  cartWhatsapp.setAttribute("aria-disabled", warning ? "true" : "false");
-  cartWhatsapp.href = warning ? "#" : `https://wa.me/56985781006?text=${cartMessage()}`;
+  const disabledWarning = Boolean(warning) && !needsAgendaDate;
+  cartWhatsapp.classList.toggle("disabled", disabledWarning);
+  cartWhatsapp.setAttribute("aria-disabled", disabledWarning ? "true" : "false");
+  if (!cart.length) {
+    cartWhatsapp.href = `categoria.html?categoria=${categoryKey || "esculpidas"}`;
+    cartWhatsapp.target = "_self";
+    cartWhatsapp.textContent = "Agrega productos al carrito";
+  } else if (needsAgendaDate) {
+    cartWhatsapp.href = "index.html#agenda";
+    cartWhatsapp.target = "_self";
+    cartWhatsapp.textContent = "Seleccionar fecha a agendar";
+  } else {
+    cartWhatsapp.target = warning ? "_self" : "_blank";
+    cartWhatsapp.href = warning ? "#" : `https://wa.me/56985781006?text=${cartMessage()}`;
+    cartWhatsapp.textContent = "Agendar pedido";
+  }
 
   cartItems.innerHTML = cart
     .map(
       (item, index) => `
         <article class="cart-item">
           <div>
-            <h3>${item.name}</h3>
+            <h3>${cleanCartItemName(item.name)}</h3>
             <p>${item.price}</p>
             <span>Cantidad: ${item.quantity}</span>
           </div>
@@ -990,10 +1257,35 @@ cartCloseButton.addEventListener("click", () => {
   cartDrawer.hidden = true;
 });
 
+cartContinueButton?.addEventListener("click", () => {
+  cartDrawer.hidden = true;
+});
+
 cartItems.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-remove-index]");
   if (!button) return;
   removeFromCart(Number(button.dataset.removeIndex));
+});
+
+cartAgenda?.addEventListener("click", (event) => {
+  const clearButton = event.target.closest("[data-cart-agenda-clear]");
+  if (clearButton) {
+    clearSelectedAgenda();
+    agendaCompatibilityNotice = "";
+    renderCart();
+    return;
+  }
+  const bothButton = event.target.closest("[data-cart-agenda-both]");
+  if (bothButton) {
+    selectAgendaSlot("pintadas", JSON.parse(bothButton.dataset.pintura));
+    selectAgendaSlot("esculpidas", JSON.parse(bothButton.dataset.escultura));
+    agendaCompatibilityNotice = "";
+    renderCart();
+    return;
+  }
+  const separateButton = event.target.closest("[data-cart-agenda-separate]");
+  if (!separateButton) return;
+  window.location.href = "index.html#agenda";
 });
 
 if (cartCouponApply && cartCoupon) {
@@ -1010,8 +1302,23 @@ if (cartCouponApply && cartCoupon) {
   });
 }
 
+loadAgendaAvailability().then(renderCart);
 loadCoupons().then(renderCart);
 renderCart();
+
+async function loadAgendaAvailability() {
+  try {
+    const response = await fetch("agenda.json", { cache: "no-store" });
+    if (!response.ok) return;
+    const data = await response.json();
+    const nextAvailability = data.availability || data;
+    if (nextAvailability && typeof nextAvailability === "object") {
+      agendaAvailability = nextAvailability;
+    }
+  } catch (error) {
+    console.warn("agenda.json no cargó. La recomendación de agenda se mostrará con disponibilidad por defecto.", error);
+  }
+}
 
 async function loadCoupons() {
   try {

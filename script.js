@@ -477,6 +477,7 @@ const cartCount = document.querySelector("#cart-count");
 const cartWhatsapp = document.querySelector("#cart-whatsapp");
 const cartOpenButton = document.querySelector("#cart-open-button");
 const cartCloseButton = document.querySelector("#cart-close-button");
+const cartContinueButton = document.querySelector("#cart-continue-button");
 const cartAgenda = document.querySelector("#cart-agenda");
 const cartTotal = document.querySelector("#cart-total");
 const cartFinal = document.querySelector("#cart-final");
@@ -498,10 +499,12 @@ let cart = JSON.parse(localStorage.getItem("lapinfluencerCart") || "[]");
 let selectedWeek = localStorage.getItem("lapinfluencerAgenda") || "";
 let selectedWeekKey = localStorage.getItem("lapinfluencerAgendaKey") || "";
 let selectedWeekType = localStorage.getItem("lapinfluencerAgendaType") || "";
+let selectedAgendaSlots = JSON.parse(localStorage.getItem("lapinfluencerAgendaSlots") || "{}");
 let couponCode = "";
 let appliedCoupon = null;
 let couponStatus = "";
 let coupons = [];
+let agendaCompatibilityNotice = "";
 const today = new Date();
 const firstAgendaMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 const lastAgendaMonth = new Date(today.getFullYear(), today.getMonth() + 17, 1);
@@ -511,6 +514,10 @@ const agendaTypes = {
   pintadas: "Pintura",
   esculpidas: "Escultura"
 };
+let agendaModal = null;
+let agendaModalBody = null;
+let agendaModalMonth = new Date(firstAgendaMonth);
+let mixedSeparateMode = false;
 const monthNames = Array.from({ length: 12 }, (_, index) =>
   new Date(2026, index, 1).toLocaleDateString("es-CL", { month: "long" })
 );
@@ -584,13 +591,42 @@ function agendaDisplayText({ weekIndex, monthLabel, weekStart, weekEnd, typeLabe
   return `Agendado para: semana ${weekIndex} de ${monthLabel} (${weekStart.getDate()}-${weekEnd.getDate()}) - cupo ${typeLabel.toLowerCase()}`;
 }
 
+function agendaSlotData({ weekIndex, monthLabel, weekStart, weekEnd, typeKey, monthOnlyFormatter }) {
+  const typeLabel = agendaTypes[typeKey];
+  const base = `semana ${weekIndex} de ${monthLabel} (${weekStart.getDate()}-${weekEnd.getDate()})`;
+  return {
+    type: typeKey,
+    typeLabel,
+    base,
+    text: `Agendado para: ${base} - cupo ${typeLabel.toLowerCase()}`
+  };
+}
+
+function saveAgendaSlots() {
+  localStorage.setItem("lapinfluencerAgendaSlots", JSON.stringify(selectedAgendaSlots));
+}
+
+function migrateLegacyAgendaSelection() {
+  if (selectedWeek && selectedWeekType && !selectedAgendaSlots[selectedWeekType]) {
+    selectedAgendaSlots[selectedWeekType] = {
+      type: selectedWeekType,
+      typeLabel: agendaTypes[selectedWeekType] || selectedWeekType,
+      base: selectedWeek.replace(/^Agendado para:\s*/i, "").replace(/\s-\scupo\s.+$/i, ""),
+      text: selectedWeek
+    };
+    saveAgendaSlots();
+  }
+}
+
 function clearSelectedAgenda() {
   selectedWeek = "";
   selectedWeekKey = "";
   selectedWeekType = "";
+  selectedAgendaSlots = {};
   localStorage.removeItem("lapinfluencerAgenda");
   localStorage.removeItem("lapinfluencerAgendaKey");
   localStorage.removeItem("lapinfluencerAgendaType");
+  localStorage.removeItem("lapinfluencerAgendaSlots");
 }
 
 function selectedAgendaIsAvailable() {
@@ -1086,7 +1122,325 @@ function agendaCategoryLabel(category) {
   return category === "pintadas" ? "Pintura" : category === "esculpidas" ? "Escultura" : "sin tipo";
 }
 
+function cartCategoryMode() {
+  const categories = [...new Set(cart.map((item) => item.category).filter(Boolean))];
+  if (!categories.length) return "";
+  if (categories.length > 1) return "mixed";
+  return categories[0];
+}
+
+function requiredAgendaTypes() {
+  const mode = cartCategoryMode();
+  if (mode === "mixed") return ["pintadas", "esculpidas"];
+  if (mode) return [mode];
+  return [];
+}
+
+function cartCategoryWarning() {
+  const mode = cartCategoryMode();
+  if (mode === "mixed") {
+    return "Tu pedido incluye un producto pintado y otro esculpido. Te recomendamos tomar la misma fecha para ambos cupos, así la entrega se realiza de forma conjunta.";
+  }
+  return "";
+}
+
+function agendaTypeAllowedForCart(typeKey) {
+  const mode = cartCategoryMode();
+  if (!mode) return true;
+  if (mode === "mixed") return typeKey === "pintadas" || typeKey === "esculpidas";
+  return mode === typeKey;
+}
+
+function agendaSelectionsComplete() {
+  const required = requiredAgendaTypes();
+  if (!required.length) return false;
+  return required.every((typeKey) => selectedAgendaSlots[typeKey]?.text);
+}
+
+function selectedAgendaMatchesCart() {
+  const required = requiredAgendaTypes();
+  if (!required.length) return true;
+  const selectedTypes = Object.keys(selectedAgendaSlots).filter((typeKey) => selectedAgendaSlots[typeKey]?.text);
+  return selectedTypes.every((typeKey) => required.includes(typeKey));
+}
+
+function incompatibleAgendaMessage() {
+  const mode = cartCategoryMode();
+  if (mode === "mixed") return cartCategoryWarning();
+  if (mode === "pintadas") return "Este producto requiere cupo pintura.";
+  if (mode === "esculpidas") return "Este producto requiere cupo escultura.";
+  return "Selecciona una fecha compatible con tu pedido.";
+}
+
+function cleanCartItemName(name) {
+  return String(name || "")
+    .replace(/\s*-\s*(?:Â¿|¿)?Qu[eé] incluye\??/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function syncAgendaSelectionWithCart() {
+  const required = requiredAgendaTypes();
+  let changed = false;
+  Object.keys(selectedAgendaSlots).forEach((typeKey) => {
+    if (!required.includes(typeKey)) {
+      delete selectedAgendaSlots[typeKey];
+      changed = true;
+    }
+  });
+
+  if (changed) {
+    saveAgendaSlots();
+    if (required.length === 1 && selectedAgendaSlots[required[0]]) {
+      selectedWeek = selectedAgendaSlots[required[0]].text;
+      selectedWeekType = required[0];
+      localStorage.setItem("lapinfluencerAgenda", selectedWeek);
+      localStorage.setItem("lapinfluencerAgendaType", selectedWeekType);
+    } else {
+      selectedWeek = "";
+      selectedWeekType = "";
+      localStorage.removeItem("lapinfluencerAgenda");
+      localStorage.removeItem("lapinfluencerAgendaType");
+      localStorage.removeItem("lapinfluencerAgendaKey");
+    }
+  }
+  return changed;
+}
+
+function selectAgendaSlot(typeKey, slot) {
+  selectedAgendaSlots[typeKey] = slot;
+  saveAgendaSlots();
+
+  if (requiredAgendaTypes().length === 1) {
+    selectedWeek = slot.text;
+    selectedWeekType = typeKey;
+    localStorage.setItem("lapinfluencerAgenda", selectedWeek);
+    localStorage.setItem("lapinfluencerAgendaType", selectedWeekType);
+  } else {
+    selectedWeek = "";
+    selectedWeekType = "";
+    localStorage.removeItem("lapinfluencerAgenda");
+    localStorage.removeItem("lapinfluencerAgendaType");
+  }
+}
+
+function cartAgendaHtml() {
+  const mode = cartCategoryMode();
+  if (!cart.length) return "";
+  if (mode === "mixed") {
+    const pintura = selectedAgendaSlots.pintadas?.base || "falta seleccionar fecha";
+    const escultura = selectedAgendaSlots.esculpidas?.base || "falta seleccionar fecha";
+    if (!agendaSelectionsComplete()) {
+      const recommended = findRecommendedMixedWeek();
+      const recommendation = recommended
+        ? `<br><strong>Semana recomendada: ${recommended.pintura.data.base}</strong>
+          <button class="button primary mixed-cart-action" type="button" data-cart-agenda-both data-pintura='${JSON.stringify(recommended.pintura.data)}' data-escultura='${JSON.stringify(recommended.escultura.data)}'>Agendar ambos cupos en esta fecha</button>
+          <button class="button secondary mixed-cart-action" type="button" data-cart-agenda-separate>Quiero agendar por separado</button>`
+        : `<br><span>No encontré una semana con ambos cupos disponibles. Puedes agendar por separado.</span>
+          <button class="button secondary mixed-cart-action" type="button" data-cart-agenda-separate>Quiero agendar por separado</button>`;
+      return `${cartCategoryWarning()}${recommendation}`;
+    }
+    return `Agendado para:<br>• Pintura: ${pintura}<br>• Escultura: ${escultura}<br>Tu pedido será enviado cuando ambos productos estén listos.<button class="button secondary mixed-cart-action" type="button" data-cart-agenda-clear>Cambiar fecha seleccionada</button>`;
+  }
+  const typeKey = requiredAgendaTypes()[0];
+  return selectedAgendaSlots[typeKey]?.text
+    ? `${selectedAgendaSlots[typeKey].text}<button class="button secondary mixed-cart-action" type="button" data-cart-agenda-clear>Cambiar fecha seleccionada</button>`
+    : "";
+}
+
+function whatsappAgendaText() {
+  const mode = cartCategoryMode();
+  if (mode === "mixed") {
+    return `Agenda:\n- Pintura: ${selectedAgendaSlots.pintadas?.base || "por coordinar"}\n- Escultura: ${selectedAgendaSlots.esculpidas?.base || "por coordinar"}\n\nTu pedido será enviado cuando ambos productos estén listos.`;
+  }
+  const typeKey = requiredAgendaTypes()[0];
+  return selectedAgendaSlots[typeKey]?.text || selectedWeek || "por coordinar";
+}
+
+function monthRange() {
+  const months = [];
+  const cursor = new Date(firstAgendaMonth);
+  while (cursor <= lastAgendaMonth) {
+    months.push(new Date(cursor));
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+  return months;
+}
+
+function weekSlotInfo(monthDate, candidate, index, typeKey) {
+  const monthOnlyFormatter = new Intl.DateTimeFormat("es-CL", { month: "long" });
+  const monthLabel = monthOnlyFormatter.format(monthDate);
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const key = agendaKey(year, month, index + 1);
+  const availability = agendaAvailability[key] || {};
+  const isPast = isPastAgendaWeek(candidate.days);
+  const isFull = availability[typeKey] === "full";
+  const data = agendaSlotData({
+    weekIndex: index + 1,
+    monthLabel,
+    weekStart: candidate.days[0],
+    weekEnd: candidate.days[6],
+    typeKey,
+    monthOnlyFormatter
+  });
+  return { key, isPast, isFull, available: !isPast && !isFull, data, weekIndex: index + 1, monthLabel };
+}
+
+function findRecommendedMixedWeek() {
+  for (const monthDate of monthRange()) {
+    const weeks = agendaWeeksForMonth(monthDate);
+    for (let index = 0; index < weeks.length; index += 1) {
+      const pintura = weekSlotInfo(monthDate, weeks[index], index, "pintadas");
+      const escultura = weekSlotInfo(monthDate, weeks[index], index, "esculpidas");
+      if (pintura.available && escultura.available) {
+        return { monthDate, week: weeks[index], index, pintura, escultura };
+      }
+    }
+  }
+  return null;
+}
+
+function createAgendaModal() {
+  if (agendaModal) return;
+  agendaModal = document.createElement("div");
+  agendaModal.className = "agenda-modal";
+  agendaModal.hidden = true;
+  agendaModal.innerHTML = `
+    <div class="agenda-modal-panel" role="dialog" aria-modal="true" aria-labelledby="agenda-modal-title">
+      <div class="agenda-modal-header">
+        <h2 id="agenda-modal-title">Selecciona fecha para agendar tu pedido</h2>
+        <button class="icon-button" type="button" data-agenda-modal-close aria-label="Cerrar agenda">x</button>
+      </div>
+      <div class="agenda-modal-body"></div>
+    </div>
+  `;
+  document.body.append(agendaModal);
+  agendaModalBody = agendaModal.querySelector(".agenda-modal-body");
+  agendaModal.addEventListener("click", (event) => {
+    if (event.target === agendaModal || event.target.closest("[data-agenda-modal-close]")) {
+      closeAgendaModal();
+    }
+  });
+}
+
+function agendaModalControlsHtml() {
+  const selectedYear = agendaModalMonth.getFullYear();
+  const selectedMonth = agendaModalMonth.getMonth();
+  const years = [...new Set(monthRange().map((monthDate) => monthDate.getFullYear()))];
+  const months = monthRange().filter((monthDate) => monthDate.getFullYear() === selectedYear);
+  return `
+    <div class="calendar-controls agenda-modal-controls">
+      <label><span>Mes</span><select data-modal-month>${months.map((monthDate) => `<option value="${monthDate.getMonth()}" ${monthDate.getMonth() === selectedMonth ? "selected" : ""}>${monthNames[monthDate.getMonth()].charAt(0).toUpperCase() + monthNames[monthDate.getMonth()].slice(1)}</option>`).join("")}</select></label>
+      <label><span>Año</span><select data-modal-year>${years.map((year) => `<option value="${year}" ${year === selectedYear ? "selected" : ""}>${year}</option>`).join("")}</select></label>
+    </div>
+  `;
+}
+
+function renderAgendaModal() {
+  if (!agendaModalBody) return;
+  const mode = cartCategoryMode();
+  const required = requiredAgendaTypes();
+  const recommended = mode === "mixed" ? findRecommendedMixedWeek() : null;
+  const mixedStatus = mode === "mixed"
+    ? `<div class="agenda-modal-status">
+        <strong>${cartCategoryWarning()}</strong>
+        <span>Pintura: ${selectedAgendaSlots.pintadas?.base || "falta seleccionar fecha"}</span>
+        <span>Escultura: ${selectedAgendaSlots.esculpidas?.base || "falta seleccionar fecha"}</span>
+      </div>`
+    : "";
+  const recommendation = recommended
+    ? `<div class="agenda-recommendation">
+        <strong>Semana recomendada: ${recommended.pintura.data.base}</strong>
+        <button class="button primary" type="button" data-agenda-both="${recommended.pintura.data.base}" data-pintura='${JSON.stringify(recommended.pintura.data)}' data-escultura='${JSON.stringify(recommended.escultura.data)}'>Agendar ambos cupos en esta fecha</button>
+      </div>`
+    : mode === "mixed" ? `<div class="agenda-recommendation"><p>No encontré una semana con ambos cupos disponibles. Puedes elegir fechas por separado.</p></div>` : "";
+
+  agendaModalBody.innerHTML = `
+    ${mixedStatus}
+    ${recommendation}
+    ${mode === "mixed" ? `<button class="text-button agenda-separate-button" type="button" data-agenda-separate>Quiero agendar por separado</button>` : ""}
+    ${mode !== "mixed" || mixedSeparateMode ? agendaModalControlsHtml() : ""}
+    <div class="agenda-modal-weeks"></div>
+  `;
+
+  if (mode === "mixed" && !mixedSeparateMode) {
+    bindAgendaModalActions();
+    return;
+  }
+
+  renderAgendaModalWeeks(required);
+  bindAgendaModalActions();
+}
+
+function renderAgendaModalWeeks(required) {
+  const weeksContainer = agendaModalBody.querySelector(".agenda-modal-weeks");
+  if (!weeksContainer) return;
+  const weeks = agendaWeeksForMonth(agendaModalMonth);
+  weeksContainer.innerHTML = "";
+  weeks.forEach((candidate, index) => {
+    const card = document.createElement("div");
+    card.className = "week-card calendar-week available";
+    const range = document.createElement("span");
+    range.className = "week-range";
+    range.innerHTML = `<strong>Semana ${index + 1}</strong><span>${candidate.days[0].getDate()} al ${candidate.days[6].getDate()}</span>`;
+    const actions = document.createElement("span");
+    actions.className = "agenda-type-actions";
+    Object.entries(agendaTypes).forEach(([typeKey, typeLabel]) => {
+      const info = weekSlotInfo(agendaModalMonth, candidate, index, typeKey);
+      const compatible = required.includes(typeKey) || !required.length;
+      const disabled = !compatible || !info.available;
+      const button = document.createElement("button");
+      button.className = `agenda-slot ${disabled ? "full-slot" : "available-slot"}`;
+      button.type = "button";
+      button.disabled = disabled;
+      button.dataset.modalAgendaType = typeKey;
+      button.dataset.modalAgendaSlot = JSON.stringify(info.data);
+      button.innerHTML = `<span>${typeLabel}</span><small>${info.isPast ? "Pasada" : info.isFull ? "Sin cupos" : compatible ? "Cupos disponibles" : "No corresponde"}</small>`;
+      actions.append(button);
+    });
+    card.append(range, actions);
+    weeksContainer.append(card);
+  });
+}
+
+function bindAgendaModalActions() {
+  agendaModalBody.querySelector("[data-agenda-separate]")?.addEventListener("click", () => {
+    mixedSeparateMode = true;
+    renderAgendaModal();
+  });
+  agendaModalBody.querySelector("[data-agenda-both]")?.addEventListener("click", (event) => {
+    const button = event.currentTarget;
+    selectAgendaSlot("pintadas", JSON.parse(button.dataset.pintura));
+    selectAgendaSlot("esculpidas", JSON.parse(button.dataset.escultura));
+    agendaCompatibilityNotice = "";
+    closeAgendaModal();
+    renderCart();
+  });
+  agendaModalBody.querySelector("[data-modal-year]")?.addEventListener("change", (event) => {
+    const year = Number(event.target.value);
+    const firstMonthForYear = monthRange().find((monthDate) => monthDate.getFullYear() === year);
+    agendaModalMonth = new Date(year, firstMonthForYear?.getMonth() ?? 0, 1);
+    renderAgendaModal();
+  });
+  agendaModalBody.querySelector("[data-modal-month]")?.addEventListener("change", (event) => {
+    agendaModalMonth = new Date(agendaModalMonth.getFullYear(), Number(event.target.value), 1);
+    renderAgendaModal();
+  });
+  agendaModalBody.querySelectorAll("[data-modal-agenda-type]").forEach((button) => {
+    button.addEventListener("click", () => {
+      selectAgendaSlot(button.dataset.modalAgendaType, JSON.parse(button.dataset.modalAgendaSlot));
+      agendaCompatibilityNotice = "";
+      if (agendaSelectionsComplete()) closeAgendaModal();
+      renderCart();
+      renderAgendaModal();
+    });
+  });
+}
+
 function cartTypeWarning() {
+  const mode = cartCategoryMode();
+  if (mode === "mixed" && !agendaSelectionsComplete()) return "";
   const agendaType = selectedAgendaType();
   if (!agendaType || !cart.length) return "";
   const wrongItems = cart.filter((item) => item.category && item.category !== agendaType);
@@ -1101,7 +1455,7 @@ function cartTypeWarningHtml(warning) {
 }
 
 function cartNeedsAgendaDate() {
-  return cart.length > 0 && !selectedWeek;
+  return cart.length > 0 && !agendaSelectionsComplete();
 }
 
 function scrollToAgendaFromCart() {
@@ -1115,12 +1469,31 @@ function scrollToAgendaFromCart() {
   }
 }
 
+function openAgendaModal(startSeparate = false) {
+  if (!cart.length) return;
+  createAgendaModal();
+  mixedSeparateMode = startSeparate;
+  agendaModalMonth = new Date(firstAgendaMonth);
+  renderAgendaModal();
+  agendaModal.hidden = false;
+}
+
+function closeAgendaModal() {
+  if (agendaModal) {
+    agendaModal.hidden = true;
+  }
+}
+
 function addToCart(name, price, category = currentCategory) {
+  name = cleanCartItemName(name);
   const existing = cart.find((item) => item.name === name && item.price === price && item.category === category);
   if (existing) {
     existing.quantity += 1;
   } else {
     cart.push({ name, price, quantity: 1, category });
+  }
+  if (syncAgendaSelectionWithCart()) {
+    agendaCompatibilityNotice = "Selecciona una fecha compatible con tu pedido.";
   }
   saveCart();
   renderCart();
@@ -1129,20 +1502,26 @@ function addToCart(name, price, category = currentCategory) {
 
 function removeFromCart(index) {
   cart.splice(index, 1);
+  if (syncAgendaSelectionWithCart()) {
+    agendaCompatibilityNotice = "Selecciona una fecha compatible con tu pedido.";
+  }
   saveCart();
   renderCart();
 }
 
 function cartMessage() {
-  if (!cart.length && !selectedWeek) return encodeURIComponent("¡Hola Cata👩🏻‍🎨!\nMe interesa agendar✍🏻.\n\n¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨");
-  const lines = cart.map((item) => `- ${item.quantity} x ${item.name} (${item.price})`);
-  const agendaLine = selectedWeek || "por coordinar";
+  if (!cart.length) {
+    const emptyMessage = "¡Hola Cata👩🏻‍🎨!\nMe interesa agendar✍🏻.\n\n¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨";
+    return encodeURIComponent(emptyMessage);
+  }
+  const lines = cart.map((item) => `- ${item.quantity} x ${cleanCartItemName(item.name)} (${item.price})`);
+  const agendaLine = whatsappAgendaText();
   const productLines = lines.length ? lines.join("\n") : "Aún no seleccioné productos.";
   const discount = cartDiscountAmount();
   const finalTotal = cartFinalAmount();
   const deposit = Math.ceil(finalTotal / 2);
   const discountLine = discount && appliedCoupon ? `\n🎟️Cupón aplicado: ${appliedCoupon.code} - ${couponDescription(appliedCoupon)} (-${formatCurrency(discount)})\n` : "";
-  return encodeURIComponent(`¡Hola Cata👩🏻‍🎨!
+  const message = `¡Hola Cata👩🏻‍🎨!
 Me interesa agendar✍🏻:
 
 ${productLines}
@@ -1153,14 +1532,21 @@ ${discountLine}🟢Total del pedido: ${formatCurrency(finalTotal)}
 
 📅${agendaLine}
 
-¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨`);
+¡Quedo atent@ a tu confirmación, muchas gracias! 🗓️✨`;
+  return encodeURIComponent(message);
 }
 function renderCart() {
+  migrateLegacyAgendaSelection();
+  if (syncAgendaSelectionWithCart()) {
+    agendaCompatibilityNotice = "Selecciona una fecha compatible con tu pedido.";
+  }
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   cartCount.textContent = totalItems;
   cartEmpty.hidden = cart.length > 0;
   if (cartAgenda) {
-    cartAgenda.textContent = selectedWeek || "Agenda: sin semana seleccionada.";
+    const agendaHtml = cartAgendaHtml();
+    cartAgenda.hidden = !agendaHtml;
+    cartAgenda.innerHTML = agendaHtml;
   }
   const subtotal = cartTotalAmount();
   const discount = cartDiscountAmount();
@@ -1193,17 +1579,20 @@ function renderCart() {
     }
   }
   if (cartWarning) {
-    const warning = cartNeedsAgendaDate() ? "Selecciona fecha a agendar" : cartTypeWarning();
+    const warning = cartNeedsAgendaDate() ? "" : cartTypeWarning() || agendaCompatibilityNotice;
     cartWarning.hidden = !warning;
-    cartWarning.innerHTML = cartNeedsAgendaDate()
-      ? `${warning}<br><a href="#agenda">Ir a Agenda</a>`
-      : cartTypeWarningHtml(warning);
+    cartWarning.innerHTML = cartTypeWarningHtml(warning);
   }
   const needsAgendaDate = cartNeedsAgendaDate();
   const warning = cartTypeWarning();
-  cartWhatsapp.classList.toggle("disabled", Boolean(warning));
-  cartWhatsapp.setAttribute("aria-disabled", warning ? "true" : "false");
-  if (needsAgendaDate) {
+  const disabledWarning = Boolean(warning) && !needsAgendaDate;
+  cartWhatsapp.classList.toggle("disabled", disabledWarning);
+  cartWhatsapp.setAttribute("aria-disabled", disabledWarning ? "true" : "false");
+  if (!cart.length) {
+    cartWhatsapp.href = "#productos";
+    cartWhatsapp.target = "_self";
+    cartWhatsapp.textContent = "Agrega productos al carrito";
+  } else if (needsAgendaDate) {
     cartWhatsapp.href = "#agenda";
     cartWhatsapp.target = "_self";
     cartWhatsapp.textContent = "Seleccionar fecha a agendar";
@@ -1218,7 +1607,7 @@ function renderCart() {
       (item, index) => `
         <article class="cart-item">
           <div>
-            <h3>${item.name}</h3>
+            <h3>${cleanCartItemName(item.name)}</h3>
             <p>${item.price}</p>
             <span>Cantidad: ${item.quantity}</span>
           </div>
@@ -1285,6 +1674,8 @@ function renderAgenda() {
 
     Object.entries(agendaTypes).forEach(([typeKey, typeLabel]) => {
       const isFull = week.isPast || week.availability[typeKey] === "full";
+      const isCompatible = agendaTypeAllowedForCart(typeKey);
+      const isDisabled = isFull || !isCompatible;
       const agendaLabel = agendaDisplayText({
         weekIndex: week.index,
         monthLabel: visibleMonthLabel,
@@ -1294,17 +1685,33 @@ function renderAgenda() {
         monthOnlyFormatter
       });
       const button = document.createElement("button");
-      button.className = `agenda-slot ${isFull ? "full-slot" : "available-slot"}`;
+      button.className = `agenda-slot ${isDisabled ? "full-slot" : "available-slot"}`;
       button.type = "button";
       button.dataset.week = agendaLabel;
+      button.dataset.agendaBase = agendaSlotData({
+        weekIndex: week.index,
+        monthLabel: visibleMonthLabel,
+        weekStart: days[0],
+        weekEnd: days[6],
+        typeKey,
+        monthOnlyFormatter
+      }).base;
       button.dataset.agendaKey = agendaKey(year, month, week.index);
       button.dataset.agendaType = typeKey;
-      button.disabled = isFull;
+      button.disabled = isDisabled;
 
       const label = document.createElement("span");
       label.textContent = typeLabel;
       const status = document.createElement("small");
-      status.textContent = week.isPast ? "Pasada" : isFull ? "Sin cupos" : "Cupos disponibles";
+      status.textContent = week.isPast
+        ? "Pasada"
+        : isFull
+          ? "Sin cupos"
+          : isCompatible
+            ? "Cupos disponibles"
+            : cartCategoryMode() === "mixed"
+              ? "Separar pedidos"
+              : "No corresponde";
       button.append(label, status);
       actions.append(button);
     });
@@ -1351,6 +1758,10 @@ cartCloseButton.addEventListener("click", () => {
   cartDrawer.hidden = true;
 });
 
+cartContinueButton?.addEventListener("click", () => {
+  cartDrawer.hidden = true;
+});
+
 cartItems.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-remove-index]");
   if (!button) return;
@@ -1361,13 +1772,34 @@ cartWarning?.addEventListener("click", (event) => {
   const link = event.target.closest('a[href="#agenda"]');
   if (!link) return;
   event.preventDefault();
-  scrollToAgendaFromCart();
+  openAgendaModal();
+});
+
+cartAgenda?.addEventListener("click", (event) => {
+  const clearButton = event.target.closest("[data-cart-agenda-clear]");
+  if (clearButton) {
+    clearSelectedAgenda();
+    agendaCompatibilityNotice = "";
+    renderCart();
+    return;
+  }
+  const bothButton = event.target.closest("[data-cart-agenda-both]");
+  if (bothButton) {
+    selectAgendaSlot("pintadas", JSON.parse(bothButton.dataset.pintura));
+    selectAgendaSlot("esculpidas", JSON.parse(bothButton.dataset.escultura));
+    agendaCompatibilityNotice = "";
+    renderCart();
+    return;
+  }
+  const separateButton = event.target.closest("[data-cart-agenda-separate]");
+  if (!separateButton) return;
+  openAgendaModal(true);
 });
 
 cartWhatsapp.addEventListener("click", (event) => {
   if (!cartNeedsAgendaDate()) return;
   event.preventDefault();
-  scrollToAgendaFromCart();
+  openAgendaModal();
 });
 
 if (cartCouponApply && cartCoupon) {
@@ -1388,12 +1820,16 @@ if (calendarGrid) {
   calendarGrid.addEventListener("click", (event) => {
     const button = event.target.closest(".agenda-slot");
     if (!button || button.disabled) return;
-    selectedWeek = button.dataset.week;
+    const typeKey = button.dataset.agendaType || "";
+    selectAgendaSlot(typeKey, {
+      type: typeKey,
+      typeLabel: agendaTypes[typeKey] || typeKey,
+      base: button.dataset.agendaBase || button.dataset.week,
+      text: button.dataset.week
+    });
     selectedWeekKey = button.dataset.agendaKey || "";
-    selectedWeekType = button.dataset.agendaType || "";
-    localStorage.setItem("lapinfluencerAgenda", selectedWeek);
+    agendaCompatibilityNotice = "";
     localStorage.setItem("lapinfluencerAgendaKey", selectedWeekKey);
-    localStorage.setItem("lapinfluencerAgendaType", selectedWeekType);
     renderAgenda();
     renderCart();
     if (cart.length) {
@@ -1444,10 +1880,10 @@ async function initializeAgenda() {
   visibleAgendaMonth = new Date(firstAgendaMonth);
   setupCalendarSelectors();
   renderAgenda();
+  renderCart();
 }
 
 async function loadAgendaAvailability() {
-  if (!calendarGrid) return;
   try {
     const response = await fetch("agenda.json", { cache: "no-store" });
     if (!response.ok) {
