@@ -19,7 +19,9 @@
       "type": "percent",
       "value": 30,
       "active": true,
-      "description": "30% de descuento"
+      "description": "30% de descuento solo para Tazón sencillo",
+      "appliesTo": [
+        "Tazones - Tazón sencillo"
     }
   ]
 }
