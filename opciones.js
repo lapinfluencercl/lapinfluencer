@@ -889,6 +889,23 @@ function cartTotalAmount() {
   return cart.reduce((total, item) => total + priceAmount(item.price) * item.quantity, 0);
 }
 
+function cartCouponBaseAmount(coupon) {
+  const appliesTo = Array.isArray(coupon?.appliesTo)
+    ? coupon.appliesTo.map((value) => normalizedCoupon(value)).filter(Boolean)
+    : [];
+  if (!appliesTo.length) return cartTotalAmount();
+
+  return cart.reduce((total, item) => {
+    const itemName = normalizedCoupon(cleanCartItemName(item.name));
+    const matches = appliesTo.some((target) => itemName.includes(target));
+    return matches ? total + priceAmount(item.price) * item.quantity : total;
+  }, 0);
+}
+
+function couponAppliesToCart(coupon) {
+  return cartCouponBaseAmount(coupon) > 0;
+}
+
 function normalizedCoupon(value) {
   return String(value || "").trim().toUpperCase();
 }
@@ -904,8 +921,10 @@ function findCoupon(code) {
   return coupons.find((coupon) => normalizedCoupon(coupon.code) === normalized) || null;
 }
 
-function calculateCouponDiscount(coupon, total) {
+function calculateCouponDiscount(coupon) {
   if (!coupon || coupon.active === false) return 0;
+  const total = cartCouponBaseAmount(coupon);
+  if (!total) return 0;
   const value = Number(coupon.value) || 0;
   if (coupon.type === "fixed") return Math.min(total, Math.max(0, value));
   if (coupon.type === "percent") return Math.min(total, Math.max(0, Math.round(total * value / 100)));
@@ -926,12 +945,16 @@ function applyCouponFromInput(value) {
     couponStatus = "Cupón inactivo.";
     return;
   }
+  if (!couponAppliesToCart(coupon)) {
+    couponStatus = "Este cupón no aplica a los productos del carrito.";
+    return;
+  }
   appliedCoupon = coupon;
   couponStatus = `Cupón aplicado: ${couponDescription(coupon)}.`;
 }
 
 function cartDiscountAmount() {
-  return calculateCouponDiscount(appliedCoupon, cartTotalAmount());
+  return calculateCouponDiscount(appliedCoupon);
 }
 
 function cartFinalAmount() {
@@ -1155,6 +1178,10 @@ function renderCart() {
     const agendaHtml = cartAgendaHtml();
     cartAgenda.hidden = !agendaHtml;
     cartAgenda.innerHTML = agendaHtml;
+  }
+  if (appliedCoupon && !couponAppliesToCart(appliedCoupon)) {
+    appliedCoupon = null;
+    couponStatus = "Este cupón no aplica a los productos del carrito.";
   }
   const subtotal = cartTotalAmount();
   const discount = cartDiscountAmount();
