@@ -13,6 +13,13 @@
       "value": 10,
       "active": true,
       "description": "10% de descuento"
-       }
+       },
+    {
+      "code": "30WEBWIN",
+      "type": "percent",
+      "value": 30,
+      "active": true,
+      "description": "30% de descuento"
+    }
   ]
 }
