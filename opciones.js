@@ -106,7 +106,7 @@ const catalog = {
       {
         name: "Charm colgante",
         image: "assets/productos/charm-colgante.png",
-        price: "Desde 18.000",
+        price: "Desde 15.000",
         summary: "Charm colgante para mochilas o bolsos, totalmente personalizado. El rostro de la mascota se trabaja en estilo caricatura.",
         options: [
           {
