@@ -1333,7 +1333,8 @@ h3 {
 }
 
 .color-choice,
-.variant-choice {
+.variant-choice,
+.quantity-choice {
   display: grid;
   gap: 6px;
   color: #643434;
@@ -1341,7 +1342,8 @@ h3 {
 }
 
 .color-choice select,
-.variant-choice select {
+.variant-choice select,
+.quantity-choice input {
   min-height: 42px;
   width: 100%;
   color: #643434;
@@ -1350,6 +1352,13 @@ h3 {
   border-radius: 8px;
   padding: 0 12px;
   font: inherit;
+}
+
+.quantity-price {
+  margin: 0;
+  color: #643434;
+  font-weight: 900;
+  text-align: center;
 }
 
 .addon-choice {

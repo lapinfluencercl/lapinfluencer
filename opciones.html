@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
   <head>
     <meta charset="utf-8" />
@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=charm2" />
   </head>
   <body>
     <header class="site-header">
@@ -82,7 +82,7 @@
         </div>
         <div class="cart-items" id="cart-items"></div>
         <div class="cart-agenda" id="cart-agenda" hidden></div>
-        <p class="cart-empty" id="cart-empty">Tu carrito está vacío.</p>
+          <p class="cart-empty" id="cart-empty">Tu carrito está vacío.</p>
         <div class="cart-summary">
           <p class="cart-total" id="cart-total">Total referencial: 0 CLP</p>
           <p class="cart-final" id="cart-final">Total del pedido: 0 CLP</p>
@@ -90,19 +90,20 @@
           <label class="coupon-field">
             <span>Código cupón/descuento</span>
             <div class="coupon-control">
-              <input type="text" id="cart-coupon" placeholder="Ingresa tu cupón" autocomplete="off" />
+            <input type="text" id="cart-coupon" placeholder="Ingresa tu cupón" autocomplete="off" />
               <button type="button" id="cart-coupon-apply">Aplicar</button>
             </div>
             <small id="cart-coupon-message"></small>
           </label>
           <p class="cart-warning" id="cart-warning" hidden></p>
         </div>
-        <p class="cart-note">Al agendar pedido serás redirigido a WhatsApp para coordinar los detalles.</p>
+          <p class="cart-note">Al agendar pedido serás redirigido a WhatsApp para coordinar los detalles.</p>
         <button class="button secondary cart-continue" id="cart-continue-button" type="button">Seguir comprando</button>
         <a class="button primary cart-whatsapp" id="cart-whatsapp" href="https://wa.me/56985781006" target="_blank" rel="noopener">Agendar Pedido</a>
       </div>
     </aside>
 
-    <script src="opciones.js"></script>
+    <script src="opciones.js?v=charm2"></script>
   </body>
 </html>
+

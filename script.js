@@ -104,6 +104,28 @@ const catalog = {
         ]
       },
       {
+        name: "Charm colgante",
+        image: "assets/productos/charm-colgante.png",
+        price: "Desde 18.000",
+        summary: "Charm colgante para mochilas o bolsos, totalmente personalizado. El rostro de la mascota se trabaja en estilo caricatura.",
+        options: [
+          {
+            title: "Charm colgante",
+            image: "assets/productos/charm-colgante.png",
+            price: "Desde 18.000",
+            quantityPricing: {
+              label: "Cantidad de charms mascotas",
+              min: 1,
+              max: 99,
+              basePrice: 18000,
+              addPrice: 4000,
+              singular: "charm mascota",
+              plural: "charms mascotas"
+            }
+          }
+        ]
+      },
+      {
         name: "Cuadro 3D",
         image: "assets/productos/portada-cuadros-3d.png",
         price: "Desde 57.500",
@@ -494,7 +516,7 @@ const calendarYearSelect = document.querySelector("#calendar-year-select");
 
 const params = new URLSearchParams(window.location.search);
 let currentCategory = params.get("categoria") || "esculpidas";
-let currentSort = "featured";
+let currentSort = "price-asc";
 let cart = JSON.parse(localStorage.getItem("lapinfluencerCart") || "[]");
 let selectedWeek = localStorage.getItem("lapinfluencerAgenda") || "";
 let selectedWeekKey = localStorage.getItem("lapinfluencerAgendaKey") || "";
@@ -752,6 +774,19 @@ function renderAddonChoices(option) {
 }
 
 function renderVariantChoice(product, option) {
+  if (option.quantityPricing) {
+    const pricing = option.quantityPricing;
+    const basePrice = formatCatalogPrice(pricing.basePrice);
+    return `
+      <label class="quantity-choice">
+        <span>${pricing.label}</span>
+        <input type="number" data-quantity-input min="${pricing.min}" max="${pricing.max}" value="${pricing.min}" />
+      </label>
+      <p class="quantity-price" data-quantity-price>${pricing.min} ${pricing.singular}: ${formatPrice(basePrice)}</p>
+      <button class="card-action" type="button" data-cart-quantity-base="${product.name} - ${option.title}" data-base-price="${pricing.basePrice}" data-add-price="${pricing.addPrice}" data-quantity-singular="${pricing.singular}" data-quantity-plural="${pricing.plural}">Agregar al carrito</button>
+    `;
+  }
+
   if (!option.variants) {
     return `<button class="card-action" type="button" data-cart-name="${product.name} - ${option.title}" data-cart-price="${formatPrice(option.price)}">Agregar al carrito</button>`;
   }
@@ -772,6 +807,7 @@ function renderVariantChoice(product, option) {
 
 function renderOptionCard(product, option, showImageSpace = false, suppressImage = false) {
   const shouldShowImageArea = !suppressImage && (option.image || option.imageSpace || option.colorImage || option.colorImageSpace || showImageSpace);
+  const notes = option.notes || [];
   return `
     <article class="option-card">
       ${
@@ -783,7 +819,7 @@ function renderOptionCard(product, option, showImageSpace = false, suppressImage
           : ""
       }
       <h4>${option.title}</h4>
-      <ul>${option.notes.map((note) => `<li>${note}</li>`).join("")}</ul>
+      ${notes.length ? `<ul>${notes.map((note) => `<li>${note}</li>`).join("")}</ul>` : ""}
       ${renderColorChoice(option)}
       ${renderAddonChoices(option)}
       <p class="price">${formatPrice(option.price)}</p>
@@ -971,6 +1007,22 @@ if (sortSelect) {
 }
 
 if (optionView) {
+  optionView.addEventListener("input", (event) => {
+    const input = event.target.closest("[data-quantity-input]");
+    if (!input) return;
+    const card = input.closest(".option-card");
+    const button = card?.querySelector("button[data-cart-quantity-base]");
+    const priceEl = card?.querySelector("[data-quantity-price]");
+    const min = Number(input.min) || 1;
+    const max = Number(input.max) || 99;
+    const quantity = Math.min(Math.max(Number(input.value) || min, min), max);
+    const basePrice = Number(button?.dataset.basePrice) || 0;
+    const addPrice = Number(button?.dataset.addPrice) || 0;
+    const total = basePrice + (quantity - 1) * addPrice;
+    const label = quantity === 1 ? button.dataset.quantitySingular : button.dataset.quantityPlural;
+    if (priceEl) priceEl.textContent = `${quantity} ${label}: ${formatPrice(formatCatalogPrice(total))}`;
+  });
+
   optionView.addEventListener("change", (event) => {
     const select = event.target.closest("[data-variant-select]");
     if (!select) return;
@@ -983,9 +1035,20 @@ if (optionView) {
   });
 
   optionView.addEventListener("click", (event) => {
-    const button = event.target.closest("button[data-cart-name], button[data-cart-base]");
+    const button = event.target.closest("button[data-cart-name], button[data-cart-base], button[data-cart-quantity-base]");
     if (!button) return;
     const card = button.closest(".option-card");
+    const quantityInput = card?.querySelector("[data-quantity-input]");
+    if (quantityInput && button.dataset.cartQuantityBase) {
+      const min = Number(quantityInput.min) || 1;
+      const max = Number(quantityInput.max) || 99;
+      const quantity = Math.min(Math.max(Number(quantityInput.value) || min, min), max);
+      quantityInput.value = quantity;
+      const total = (Number(button.dataset.basePrice) || 0) + (quantity - 1) * (Number(button.dataset.addPrice) || 0);
+      const label = quantity === 1 ? button.dataset.quantitySingular : button.dataset.quantityPlural;
+      addToCart(`${button.dataset.cartQuantityBase} - ${quantity} ${label}`, formatPrice(formatCatalogPrice(total)));
+      return;
+    }
     const variantSelect = card?.querySelector("[data-variant-select]");
     const selectedVariant = variantSelect?.selectedOptions[0];
     if (variantSelect && !variantSelect.value) return;
@@ -1205,7 +1268,7 @@ function incompatibleAgendaMessage() {
 
 function cleanCartItemName(name) {
   return String(name || "")
-    .replace(/\s*-\s*(?:Â¿|¿)?Qu[eé] incluye\??/gi, "")
+    .replace(/\s*-\s*¿?Qu[eé] incluye\??/gi, "")
     .replace(/\s{2,}/g, " ")
     .trim();
 }
