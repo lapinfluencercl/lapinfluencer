@@ -112,7 +112,7 @@ const catalog = {
           {
             title: "Charm colgante",
             image: "assets/productos/charm-colgante.png",
-            price: "Desde 18.000",
+            price: "Desde 15.000",
             quantityPricing: {
               label: "Cantidad de charms mascotas",
               min: 1,
