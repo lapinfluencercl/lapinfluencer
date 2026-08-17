@@ -4,17 +4,27 @@
       "code": "1ERACOMPRAWEB20",
       "type": "percent",
       "value": 20,
-      "active": true,
+      "active": false,
       "description": "20% de descuento"
     },
     {
       "code": "30WEBWIN",
       "type": "percent",
       "value": 30,
-      "active": true,
+      "active": false,
       "description": "30% de descuento solo para Tazón sencillo",
-      "appliesTo": [
+       "appliesTo": [
         "Tazones - Tazón sencillo"
+      ]
+    },
+    {
+      "code": "CHARM15",
+      "type": "percent",
+      "value": 15,
+      "active": true,
+      "description": "15% de descuento solo para Charm Colgante",
+      "appliesTo": [
+        "Charm Colgante"
       ]
     }
   ]
