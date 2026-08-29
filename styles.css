@@ -291,6 +291,42 @@ a {
   line-height: 1.45;
 }
 
+.cart-quantity {
+  display: inline-grid;
+  grid-template-columns: 34px 42px 34px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.cart-quantity button {
+  width: 34px;
+  height: 34px;
+  color: #643434;
+  background: #fab6c2;
+  border: 1px solid #ffa279;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.cart-quantity strong {
+  display: grid;
+  min-height: 34px;
+  place-items: center;
+  color: #643434;
+  background: #fffaf1;
+  border: 1px solid #ffa279;
+  border-radius: 8px;
+  font-weight: 900;
+}
+
+.cart-quantity button:hover,
+.cart-quantity button:focus-visible {
+  background: #ffa279;
+}
+
 .cart-continue,
 .cart-whatsapp {
   width: 100%;
@@ -1359,6 +1395,59 @@ h3 {
   color: #643434;
   font-weight: 900;
   text-align: center;
+}
+
+.product-quantity-choice {
+  display: grid;
+  gap: 8px;
+  color: #643434;
+  font-weight: 900;
+  text-align: center;
+}
+
+.quantity-stepper {
+  display: inline-grid;
+  grid-template-columns: 42px minmax(54px, 72px) 44px 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 auto;
+}
+
+.quantity-stepper input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.quantity-stepper strong {
+  display: grid;
+  min-height: 42px;
+  place-items: center;
+  color: #643434;
+  background: #fffaf1;
+  border: 1px solid #ffa279;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.quantity-step-button {
+  width: 42px;
+  height: 42px;
+  color: #643434;
+  background: #fab6c2;
+  border: 1px solid #ffa279;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.quantity-step-button:hover,
+.quantity-step-button:focus-visible {
+  background: #ffa279;
 }
 
 .addon-choice {

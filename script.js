@@ -112,16 +112,19 @@ const catalog = {
           {
             title: "Charm colgante",
             image: "assets/productos/charm-colgante.png",
-            price: "Desde 15.000",
-            quantityPricing: {
-              label: "Cantidad de charms mascotas",
-              min: 1,
-              max: 99,
-              basePrice: 18000,
-              addPrice: 4000,
-              singular: "charm mascota",
-              plural: "charms mascotas"
-            }
+            price: "Desde 18.000",
+            variants: [
+              { title: "1 mascota", price: "18.000" },
+              { title: "2 mascotas", price: "22.000" },
+              { title: "3 mascotas", price: "26.000" },
+              { title: "4 mascotas", price: "30.000" },
+              { title: "5 mascotas", price: "34.000" },
+              { title: "6 mascotas", price: "38.000" },
+              { title: "7 mascotas", price: "42.000" },
+              { title: "8 mascotas", price: "46.000" },
+              { title: "9 mascotas", price: "50.000" },
+              { title: "10 mascotas", price: "54.000" }
+            ]
           }
         ]
       },
@@ -773,22 +776,40 @@ function renderAddonChoices(option) {
   `;
 }
 
+function twoDigitQuantity(value) {
+  return String(Math.min(Math.max(Number(value) || 1, 1), 99)).padStart(2, "0");
+}
+
+function renderQuantityStepper({ inputName = "data-item-quantity-input", label = "Cantidad", value = 1 } = {}) {
+  return `
+    <label class="product-quantity-choice">
+      <span>${label}</span>
+      <div class="quantity-stepper">
+        <button type="button" class="quantity-step-button" data-quantity-decrease aria-label="Disminuir cantidad">−</button>
+        <input type="number" ${inputName} min="1" max="99" value="${value}" inputmode="numeric" />
+        <strong data-quantity-display>${twoDigitQuantity(value)}</strong>
+        <button type="button" class="quantity-step-button" data-quantity-increase aria-label="Aumentar cantidad">+</button>
+      </div>
+    </label>
+  `;
+}
+
 function renderVariantChoice(product, option) {
   if (option.quantityPricing) {
     const pricing = option.quantityPricing;
     const basePrice = formatCatalogPrice(pricing.basePrice);
     return `
-      <label class="quantity-choice">
-        <span>${pricing.label}</span>
-        <input type="number" data-quantity-input min="${pricing.min}" max="${pricing.max}" value="${pricing.min}" />
-      </label>
+      ${renderQuantityStepper({ inputName: "data-quantity-input", label: pricing.label, value: pricing.min })}
       <p class="quantity-price" data-quantity-price>${pricing.min} ${pricing.singular}: ${formatPrice(basePrice)}</p>
       <button class="card-action" type="button" data-cart-quantity-base="${product.name} - ${option.title}" data-base-price="${pricing.basePrice}" data-add-price="${pricing.addPrice}" data-quantity-singular="${pricing.singular}" data-quantity-plural="${pricing.plural}">Agregar al carrito</button>
     `;
   }
 
   if (!option.variants) {
-    return `<button class="card-action" type="button" data-cart-name="${product.name} - ${option.title}" data-cart-price="${formatPrice(option.price)}">Agregar al carrito</button>`;
+    return `
+      ${renderQuantityStepper()}
+      <button class="card-action" type="button" data-cart-name="${product.name} - ${option.title}" data-cart-price="${formatPrice(option.price)}">Agregar al carrito</button>
+    `;
   }
 
   return `
@@ -801,6 +822,7 @@ function renderVariantChoice(product, option) {
           .join("")}
       </select>
     </label>
+    ${renderQuantityStepper()}
     <button class="card-action" type="button" data-cart-base="${product.name} - ${option.title}" disabled>Agregar al carrito</button>
   `;
 }
@@ -972,6 +994,7 @@ function renderDetails(product) {
         <h4>¿Que incluye?</h4>
         <ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>
         <p class="price">${formatPrice(product.price)}</p>
+        ${renderQuantityStepper()}
         <button class="card-action" type="button" data-cart-name="${product.name}" data-cart-price="${formatPrice(product.price)}">Agregar al carrito</button>
       </article>
     </div>
@@ -1007,6 +1030,55 @@ if (sortSelect) {
 }
 
 if (optionView) {
+  function quantityFromCard(card, selector = "[data-item-quantity-input]") {
+    const input = card?.querySelector(selector);
+    return Math.min(Math.max(Number(input?.value) || 1, 1), 99);
+  }
+
+  function syncStepper(stepper) {
+    const input = stepper?.querySelector("input");
+    const display = stepper?.querySelector("[data-quantity-display]");
+    if (!input) return 1;
+    const quantity = Math.min(Math.max(Number(input.value) || 1, 1), 99);
+    input.value = quantity;
+    if (display) display.textContent = twoDigitQuantity(quantity);
+    return quantity;
+  }
+
+  function updateQuantityPrice(card) {
+    const input = card?.querySelector("[data-quantity-input]");
+    if (!input) return;
+    const button = card?.querySelector("button[data-cart-quantity-base]");
+    const priceEl = card?.querySelector("[data-quantity-price]");
+    const quantity = quantityFromCard(card, "[data-quantity-input]");
+    const basePrice = Number(button?.dataset.basePrice) || 0;
+    const addPrice = Number(button?.dataset.addPrice) || 0;
+    const total = basePrice + (quantity - 1) * addPrice;
+    const label = quantity === 1 ? button.dataset.quantitySingular : button.dataset.quantityPlural;
+    if (priceEl) priceEl.textContent = `${quantity} ${label}: ${formatPrice(formatCatalogPrice(total))}`;
+  }
+
+  optionView.addEventListener("input", (event) => {
+    const anyQuantityInput = event.target.closest("[data-quantity-input], [data-item-quantity-input]");
+    if (anyQuantityInput) {
+      const card = anyQuantityInput.closest(".option-card");
+      syncStepper(anyQuantityInput.closest(".quantity-stepper"));
+      updateQuantityPrice(card);
+    }
+  });
+
+  optionView.addEventListener("click", (event) => {
+    const stepButton = event.target.closest("[data-quantity-decrease], [data-quantity-increase]");
+    if (!stepButton) return;
+    const stepper = stepButton.closest(".quantity-stepper");
+    const input = stepper?.querySelector("input");
+    if (!input) return;
+    const current = Number(input.value) || 1;
+    input.value = stepButton.matches("[data-quantity-increase]") ? current + 1 : current - 1;
+    syncStepper(stepper);
+    updateQuantityPrice(stepButton.closest(".option-card"));
+  });
+
   optionView.addEventListener("input", (event) => {
     const input = event.target.closest("[data-quantity-input]");
     if (!input) return;
@@ -1040,9 +1112,7 @@ if (optionView) {
     const card = button.closest(".option-card");
     const quantityInput = card?.querySelector("[data-quantity-input]");
     if (quantityInput && button.dataset.cartQuantityBase) {
-      const min = Number(quantityInput.min) || 1;
-      const max = Number(quantityInput.max) || 99;
-      const quantity = Math.min(Math.max(Number(quantityInput.value) || min, min), max);
+      const quantity = quantityFromCard(card, "[data-quantity-input]");
       quantityInput.value = quantity;
       const total = (Number(button.dataset.basePrice) || 0) + (quantity - 1) * (Number(button.dataset.addPrice) || 0);
       const label = quantity === 1 ? button.dataset.quantitySingular : button.dataset.quantityPlural;
@@ -1061,7 +1131,7 @@ if (optionView) {
     const addons = [...(card?.querySelectorAll("[data-addon-title]:checked") || [])];
     const addonName = addons.map((addon) => ` - ${addon.dataset.addonTitle}`).join("");
     const addonPrice = addons.map((addon) => ` + ${addon.dataset.addonPrice}`).join("");
-    addToCart(`${baseName}${color}${addonName}`, `${basePrice}${addonPrice}`);
+    addToCart(`${baseName}${color}${addonName}`, `${basePrice}${addonPrice}`, currentCategory, quantityFromCard(card));
   });
 }
 
@@ -1578,13 +1648,14 @@ function closeAgendaModal() {
   }
 }
 
-function addToCart(name, price, category = currentCategory) {
+function addToCart(name, price, category = currentCategory, quantity = 1) {
   name = cleanCartItemName(name);
+  const amount = Math.min(Math.max(Number(quantity) || 1, 1), 99);
   const existing = cart.find((item) => item.name === name && item.price === price && item.category === category);
   if (existing) {
-    existing.quantity += 1;
+    existing.quantity = Math.min(existing.quantity + amount, 99);
   } else {
-    cart.push({ name, price, quantity: 1, category });
+    cart.push({ name, price, quantity: amount, category });
   }
   if (syncAgendaSelectionWithCart()) {
     agendaCompatibilityNotice = "Selecciona una fecha compatible con tu pedido.";
@@ -1599,6 +1670,19 @@ function removeFromCart(index) {
   if (syncAgendaSelectionWithCart()) {
     agendaCompatibilityNotice = "Selecciona una fecha compatible con tu pedido.";
   }
+  saveCart();
+  renderCart();
+}
+
+function updateCartItemQuantity(index, change) {
+  const item = cart[index];
+  if (!item) return;
+  const nextQuantity = item.quantity + change;
+  if (nextQuantity <= 0) {
+    removeFromCart(index);
+    return;
+  }
+  item.quantity = Math.min(nextQuantity, 99);
   saveCart();
   renderCart();
 }
@@ -1707,9 +1791,12 @@ function renderCart() {
           <div>
             <h3>${cleanCartItemName(item.name)}</h3>
             <p>${item.price}</p>
-            <span>Cantidad: ${item.quantity}</span>
+            <div class="cart-quantity" aria-label="Cantidad">
+              <button type="button" data-cart-quantity-decrease="${index}" aria-label="Disminuir cantidad">−</button>
+              <strong>${twoDigitQuantity(item.quantity)}</strong>
+              <button type="button" data-cart-quantity-increase="${index}" aria-label="Aumentar cantidad">+</button>
+            </div>
           </div>
-          <button class="remove-button" type="button" data-remove-index="${index}">Eliminar</button>
         </article>
       `
     )
@@ -1861,9 +1948,16 @@ cartContinueButton?.addEventListener("click", () => {
 });
 
 cartItems.addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-remove-index]");
-  if (!button) return;
-  removeFromCart(Number(button.dataset.removeIndex));
+  const decreaseButton = event.target.closest("button[data-cart-quantity-decrease]");
+  if (decreaseButton) {
+    updateCartItemQuantity(Number(decreaseButton.dataset.cartQuantityDecrease), -1);
+    return;
+  }
+  const increaseButton = event.target.closest("button[data-cart-quantity-increase]");
+  if (increaseButton) {
+    updateCartItemQuantity(Number(increaseButton.dataset.cartQuantityIncrease), 1);
+    return;
+  }
 });
 
 cartWarning?.addEventListener("click", (event) => {
