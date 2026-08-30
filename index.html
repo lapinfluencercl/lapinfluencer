@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=cartqty2" />
+    <link rel="stylesheet" href="styles.css?v=claridad1" />
   </head>
   <body>
     <header class="site-header">
@@ -21,12 +21,10 @@
         <img class="brand-logo" src="assets/logo-lapinfluencer.png" alt="Lapinfluencer, regalos con sentido" />
       </a>
       <nav class="top-nav" aria-label="Navegación principal">
-        <a href="#inicio">Home</a>
         <a href="#productos">Productos</a>
-        <a href="#agenda">Agenda</a>
-        <a href="#envios">Envíos</a>
+        <a href="#como-comprar">Cómo comprar</a>
         <a href="#preguntas">Preguntas frecuentes</a>
-        <a href="#acerca">Acerca</a>
+        <a href="#acerca">Sobre mí</a>
       </nav>
       <div class="header-actions">
         <button class="cart-button" type="button" id="cart-open-button" aria-label="Abrir carrito">
@@ -59,6 +57,33 @@
         </div>
       </div>
     </header>
+    <div class="trust-ticker" aria-label="Información importante de compra">
+      <div class="trust-ticker-track">
+        <span>Hecho a mano</span>
+        <span class="ticker-dot" aria-hidden="true">·</span>
+        <span>+6 años creando mascotas personalizadas</span>
+        <span class="ticker-dot" aria-hidden="true">·</span>
+        <span>Envíos a todo Chile &#127464;&#127473; y el extranjero &#9992;&#65039;</span>
+        <span class="ticker-dot" aria-hidden="true">·</span>
+        <span>Reserva con 50%</span>
+        <span class="ticker-dot" aria-hidden="true">·</span>
+        <span>Transferencia y tarjeta de crédito</span>
+        <span class="ticker-dot" aria-hidden="true">·</span>
+        <span>Atención directa por WhatsApp</span>
+        <span class="ticker-dot" aria-hidden="true">·</span>
+        <span>Hecho a mano</span>
+        <span class="ticker-dot" aria-hidden="true">·</span>
+        <span>+6 años creando mascotas personalizadas</span>
+        <span class="ticker-dot" aria-hidden="true">·</span>
+        <span>Envíos a todo Chile &#127464;&#127473; y el extranjero &#9992;&#65039;</span>
+        <span class="ticker-dot" aria-hidden="true">·</span>
+        <span>Reserva con 50%</span>
+        <span class="ticker-dot" aria-hidden="true">·</span>
+        <span>Transferencia y tarjeta de crédito</span>
+        <span class="ticker-dot" aria-hidden="true">·</span>
+        <span>Atención directa por WhatsApp</span>
+      </div>
+    </div>
 
     <main>
       <section class="hero" id="inicio">
@@ -69,23 +94,41 @@
             Cada pieza es realizada a mano y de forma individual, cuidando el
             detalle y la expresión en cada mascota.
           </p>
-          <p class="monthly-spots">Cupos mensuales limitados</p>
         </div>
         <figure class="hero-photo">
           <img src="assets/inicio-productos-sin-fondo.png" alt="Piezas personalizadas de mascotas hechas a mano" />
         </figure>
+        <div class="hero-actions">
+          <a class="button primary" href="#productos">Ver productos</a>
+        </div>
       </section>
 
-      <section class="process-guide" aria-labelledby="process-title">
+      <section class="process-guide" id="como-comprar" aria-labelledby="process-title">
         <div class="section-heading">
           <p class="eyebrow">Cómo comprar</p>
           <h2 id="process-title">Tu pedido en 4 pasos</h2>
         </div>
-        <div class="process-steps" aria-label="Proceso de compra">
-          <div class="process-step"><span class="process-number">1</span><strong class="process-text">Elige producto</strong></div>
-          <div class="process-step"><span class="process-number">2</span><strong class="process-text">Agrega al carrito</strong></div>
-          <div class="process-step"><span class="process-number">3</span><strong class="process-text">Elige semana</strong></div>
-          <div class="process-step"><span class="process-number">4</span><strong class="process-text">Presiona “Agendar pedido” en el carrito</strong></div>
+        <div class="process-steps detailed" aria-label="Proceso de compra">
+          <div class="process-step">
+            <span class="process-number">1</span>
+            <strong class="process-text">Elige tu producto</strong>
+            <small>Escoge la pieza que quieres personalizar.</small>
+          </div>
+          <div class="process-step">
+            <span class="process-number">2</span>
+            <strong class="process-text">Elige una semana disponible</strong>
+            <small>Selecciona la semana estimada para tu pedido.</small>
+          </div>
+          <div class="process-step">
+            <span class="process-number">3</span>
+            <strong class="process-text">Confirma por WhatsApp</strong>
+            <small>Revisamos tu solicitud, foto y disponibilidad contigo.</small>
+          </div>
+          <div class="process-step">
+            <span class="process-number">4</span>
+            <strong class="process-text">Reserva pagando el 50%</strong>
+            <small>El 50% restante se paga cuando el pedido esté terminado.</small>
+          </div>
         </div>
       </section>
 
@@ -137,10 +180,11 @@
             </svg>
           </span>
           <p class="eyebrow">Cupos semanales</p>
-          <h2 id="agenda-title">Agenda disponible</h2>
+          <h2 id="agenda-title">Elige tu semana de despacho</h2>
           <p>
-            Elige una semana referencial para tu pedido. La fecha se confirma
-            por WhatsApp segun disponibilidad y tipo de pieza.
+            Selecciona la semana en que esperas que tu pedido esté terminado
+            y sea enviado. Tu cupo queda confirmado después de revisar el
+            pedido por WhatsApp y realizar el pago del 50%.
           </p>
         </div>
 
@@ -230,13 +274,6 @@
         </figure>
       </section>
 
-      <section class="idea-section" aria-label="Idea diferente">
-        <div class="idea-callout">
-          <p>¿Tienes alguna idea diferente que no está en el catálogo? Hagámosla realidad.</p>
-          <a class="button primary idea-button" href="https://wa.me/56985781006?text=%C2%A1Hola%20Cata%F0%9F%91%A9%F0%9F%8F%BB%E2%80%8D%F0%9F%8E%A8!%20Tengo%20una%20idea%20distinta%20para%20un%20pedido%20que%20no%20logr%C3%A9%20encontrar%20en%20la%20web.%0ATe%20comento...%F0%9F%92%A1" target="_blank" rel="noopener">Cotizar</a>
-        </div>
-      </section>
-
       <section class="faq" id="preguntas" aria-labelledby="faq-title">
         <div class="section-heading">
           <h2 id="faq-title">Preguntas frecuentes</h2>
@@ -244,42 +281,67 @@
 
         <div class="faq-list">
           <details open>
-            <summary>¿Que necesito para agendar?</summary>
+            <summary>¿Cómo hago un pedido?</summary>
+            <p>
+              Elige el producto, agrégalo al carrito y selecciona una semana
+              disponible. Al continuar, WhatsApp se abrirá con tu pedido armado
+              para revisar los detalles contigo.
+            </p>
+          </details>
+          <details>
+            <summary>¿Cuánto debo pagar para reservar?</summary>
+            <p>
+              Para reservar se paga el 50% del total del pedido. El 50%
+              restante se paga cuando tu pedido esté terminado.
+            </p>
+          </details>
+          <details>
+            <summary>¿Qué tipo de foto necesito enviar?</summary>
             <p>
               Necesitas al menos una foto de tu mascota. No tiene que ser
-              perfecta: si tienes dudas, puedes agendar, enviarla por WhatsApp
-              y te confirmo si sirve para la pieza. Para reservar el cupo se
-              paga el 50% del total del carrito; el resto se paga cuando tu
-              pedido esté listo.
+              perfecta: si tienes dudas, puedes enviarla por WhatsApp y te
+              confirmo si sirve para la pieza que quieres.
             </p>
           </details>
           <details>
-            <summary>¿Como funciona la agenda?</summary>
+            <summary>¿Cuánto demora?</summary>
             <p>
-              Se trabaja con cupos semanales limitados. Puedes revisar el
-              calendario disponible, elegir una semana referencial y agregarla
-              a tu pedido. El pedido se envia dentro de la semana agendada.
-              La fecha se confirma por WhatsApp segun disponibilidad y tipo de
-              pieza.
+              Cada pieza se trabaja a mano y con cupos semanales limitados.
+              En la agenda puedes elegir una semana estimada de despacho; la
+              fecha final se confirma por WhatsApp.
             </p>
           </details>
           <details>
-            <summary>¿El envío está incluido en el valor?</summary>
+            <summary>¿Cuánto cuesta el envío?</summary>
             <p>
               No, el envío se paga a la empresa correspondiente que realiza el
               servicio: Starken, Chile Express o Correos de Chile.
             </p>
           </details>
           <details>
+            <summary>¿Hacen envíos a todo Chile?</summary>
+            <p>
+              Sí. Hacemos envíos a todo Chile a través de Starken, Correos de
+              Chile o Chilexpress.
+            </p>
+          </details>
+          <details>
+            <summary>¿Puedo pedirlo para una fecha específica?</summary>
+            <p>
+              Puedes indicar la semana que prefieres. La disponibilidad y la
+              fecha se revisan y confirman por WhatsApp antes de reservar.
+            </p>
+          </details>
+          <details>
             <summary>¿Puedo hacer un pedido urgente?</summary>
             <p>
-              Si, envia un mensaje comentandolo y reviso disponibilidad de
-              sobrecupo. El sobrecupo tiene un valor adicional segun el
+              Sí, envía un mensaje comentándolo y reviso disponibilidad de
+              sobrecupo. El sobrecupo tiene un valor adicional según el
               producto.
             </p>
           </details>
           <details>
-            <summary>¿Puedo lavar mi tazon?</summary>
+            <summary>¿Puedo lavar mi tazón?</summary>
             <p>
               Sí. Para cuidarlos mejor, lava a mano con esponja suave, evita
               remojar por mucho tiempo y no uses lavavajillas ni microondas.
@@ -301,6 +363,13 @@
           </details>
         </div>
       </section>
+
+      <section class="idea-section" aria-label="Idea diferente">
+        <div class="idea-callout">
+          <p>¿Tienes alguna idea diferente que no está en el catálogo? Hagámosla realidad.</p>
+          <a class="button primary idea-button" href="https://wa.me/56985781006?text=%C2%A1Hola%20Cata%F0%9F%91%A9%F0%9F%8F%BB%E2%80%8D%F0%9F%8E%A8!%20Tengo%20una%20idea%20distinta%20para%20un%20pedido%20que%20no%20logr%C3%A9%20encontrar%20en%20la%20web.%0ATe%20comento...%F0%9F%92%A1" target="_blank" rel="noopener">Cotizar</a>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer">
@@ -308,13 +377,14 @@
         <img src="assets/logo-lapinfluencer.png" alt="Lapinfluencer, regalos con sentido" />
         <p>Regalos personalizados hechos a mano en Curicó, Chile.</p>
       </div>
-      <nav class="footer-links" aria-label="Enlaces del pie de pagina">
+      <nav class="footer-links" aria-label="Enlaces del pie de página">
         <a href="#inicio">Home</a>
         <a href="#productos">Productos</a>
+        <a href="#como-comprar">Cómo comprar</a>
         <a href="#agenda">Agenda</a>
         <a href="#envios">Envíos</a>
         <a href="#preguntas">Preguntas frecuentes</a>
-        <a href="#acerca">Acerca</a>
+        <a href="#acerca">Sobre mí</a>
       </nav>
       <div class="footer-contact">
         <strong>Contacto</strong>
@@ -335,7 +405,7 @@
         <div class="cart-agenda" id="cart-agenda" hidden></div>
         <p class="cart-empty" id="cart-empty">Tu carrito está vacío.</p>
         <div class="cart-summary">
-          <p class="cart-total" id="cart-total">Total referencial: 0 CLP</p>
+          <p class="cart-total" id="cart-total">Descuento aplicado: 0 CLP</p>
           <p class="cart-final" id="cart-final">Total del pedido: 0 CLP</p>
           <p class="cart-deposit" id="cart-deposit" hidden></p>
           <label class="coupon-field">
@@ -348,13 +418,13 @@
           </label>
           <p class="cart-warning" id="cart-warning" hidden></p>
         </div>
-        <p class="cart-note">Al agendar pedido serás redirigido a WhatsApp para coordinar los detalles.</p>
+        <p class="cart-note">No realizarás ningún pago todavía. Primero confirmaremos los detalles de tu pedido por WhatsApp.</p>
         <button class="button secondary cart-continue" id="cart-continue-button" type="button">Seguir comprando</button>
-        <a class="button primary cart-whatsapp" id="cart-whatsapp" href="https://wa.me/56985781006" target="_blank" rel="noopener">Agendar Pedido</a>
+        <a class="button primary cart-whatsapp" id="cart-whatsapp" href="https://wa.me/56985781006" target="_blank" rel="noopener">Continuar y agendar por WhatsApp</a>
       </div>
     </aside>
 
-    <script src="script.js?v=cartqty2"></script>
+    <script src="script.js?v=claridad1"></script>
   </body>
 </html>
 

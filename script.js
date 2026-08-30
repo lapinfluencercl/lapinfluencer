@@ -621,7 +621,7 @@ function agendaRangeText(weekStart, weekEnd, monthOnlyFormatter) {
 }
 
 function agendaDisplayText({ weekIndex, monthLabel, weekStart, weekEnd, typeLabel, monthOnlyFormatter }) {
-  return `Agendado para: semana ${weekIndex} de ${monthLabel} (${weekStart.getDate()}-${weekEnd.getDate()}) - cupo ${typeLabel.toLowerCase()}`;
+  return `Semana preferida de despacho: semana ${weekIndex} de ${monthLabel} (${weekStart.getDate()}-${weekEnd.getDate()}) - cupo ${typeLabel.toLowerCase()}`;
 }
 
 function agendaSlotData({ weekIndex, monthLabel, weekStart, weekEnd, typeKey, monthOnlyFormatter }) {
@@ -631,7 +631,7 @@ function agendaSlotData({ weekIndex, monthLabel, weekStart, weekEnd, typeKey, mo
     type: typeKey,
     typeLabel,
     base,
-    text: `Agendado para: ${base} - cupo ${typeLabel.toLowerCase()}`
+    text: `Semana preferida de despacho: ${base} - cupo ${typeLabel.toLowerCase()}`
   };
 }
 
@@ -644,7 +644,7 @@ function migrateLegacyAgendaSelection() {
     selectedAgendaSlots[selectedWeekType] = {
       type: selectedWeekType,
       typeLabel: agendaTypes[selectedWeekType] || selectedWeekType,
-      base: selectedWeek.replace(/^Agendado para:\s*/i, "").replace(/\s-\scupo\s.+$/i, ""),
+      base: selectedWeek.replace(/^(Agendado para|Semana preferida de despacho):\s*/i, "").replace(/\s-\scupo\s.+$/i, ""),
       text: selectedWeek
     };
     saveAgendaSlots();
@@ -949,9 +949,9 @@ function renderProducts() {
       const action = hasOptions ? "Ver opciones" : "Ver más";
       return `
         <article class="product-card">
-          <div class="product-image product-image-area" aria-hidden="true">
-            ${Object.prototype.hasOwnProperty.call(product, "image") ? (product.image ? `<img src="${product.image}" alt="" />` : "") : initials(product.name)}
-          </div>
+          <button class="product-image product-image-area product-image-link" type="button" data-product="${slugify(product.name)}" aria-label="Ver ${product.name}">
+            ${Object.prototype.hasOwnProperty.call(product, "image") ? (product.image ? `<img src="${product.image}" alt="${product.name}" />` : "") : initials(product.name)}
+          </button>
           <div class="card-body product-info">
             <h4>${product.name}</h4>
             <p>${product.summary || ""}</p>
@@ -991,7 +991,7 @@ function renderDetails(product) {
     <p>${product.summary}</p>
     <div class="option-grid">
       <article class="option-card">
-        <h4>¿Que incluye?</h4>
+      <h4>¿Qué incluye?</h4>
         <ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>
         <p class="price">${formatPrice(product.price)}</p>
         ${renderQuantityStepper()}
@@ -1404,7 +1404,7 @@ function cartAgendaHtml() {
           <button class="button secondary mixed-cart-action" type="button" data-cart-agenda-separate>Quiero agendar por separado</button>`;
       return `${cartCategoryWarning()}${recommendation}`;
     }
-    return `Agendado para:<br>• Pintura: ${pintura}<br>• Escultura: ${escultura}<br>Tu pedido será enviado cuando ambos productos estén listos.<button class="button secondary mixed-cart-action" type="button" data-cart-agenda-clear>Cambiar fecha seleccionada</button>`;
+    return `Semana preferida de despacho:<br>• Pintura: ${pintura}<br>• Escultura: ${escultura}<br>Tu pedido será enviado cuando ambos productos estén listos.<button class="button secondary mixed-cart-action" type="button" data-cart-agenda-clear>Cambiar fecha seleccionada</button>`;
   }
   const typeKey = requiredAgendaTypes()[0];
   return selectedAgendaSlots[typeKey]?.text
@@ -1415,7 +1415,7 @@ function cartAgendaHtml() {
 function whatsappAgendaText() {
   const mode = cartCategoryMode();
   if (mode === "mixed") {
-    return `Agenda:\n- Pintura: ${selectedAgendaSlots.pintadas?.base || "por coordinar"}\n- Escultura: ${selectedAgendaSlots.esculpidas?.base || "por coordinar"}\n\nTu pedido será enviado cuando ambos productos estén listos.`;
+    return `Semana preferida de despacho:\n- Pintura: ${selectedAgendaSlots.pintadas?.base || "por coordinar"}\n- Escultura: ${selectedAgendaSlots.esculpidas?.base || "por coordinar"}\n\nTu pedido será enviado cuando ambos productos estén listos.`;
   }
   const typeKey = requiredAgendaTypes()[0];
   return selectedAgendaSlots[typeKey]?.text || selectedWeek || "por coordinar";
@@ -1698,6 +1698,7 @@ function cartMessage() {
   const discount = cartDiscountAmount();
   const finalTotal = cartFinalAmount();
   const deposit = Math.ceil(finalTotal / 2);
+  const balance = Math.max(finalTotal - deposit, 0);
   const discountLine = discount && appliedCoupon ? `\n${EMOJI_TICKET}Cupón aplicado: ${appliedCoupon.code} - ${couponDescription(appliedCoupon)} (-${formatCurrency(discount)})\n` : "";
   const message = `¡Hola Cata${EMOJI_ARTIST}!
 Me interesa agendar${EMOJI_WRITE}:
@@ -1706,7 +1707,9 @@ ${productLines}
 
 ${discountLine}${EMOJI_GREEN}Total del pedido: ${formatCurrency(finalTotal)}
 
-${EMOJI_MONEY}50% para agendar: ${formatCurrency(deposit)}
+${EMOJI_MONEY}Para reservar (50%): ${formatCurrency(deposit)}
+
+Saldo al terminar: ${formatCurrency(balance)}
 
 ${EMOJI_CALENDAR}${agendaLine}
 
@@ -1733,6 +1736,8 @@ function renderCart() {
   const subtotal = cartTotalAmount();
   const discount = cartDiscountAmount();
   const finalTotal = cartFinalAmount();
+  const deposit = Math.ceil(finalTotal / 2);
+  const balance = Math.max(finalTotal - deposit, 0);
   if (cartTotal) {
     cartTotal.hidden = !discount;
     cartTotal.textContent = discount ? `Descuento aplicado: -${formatCurrency(discount)}` : "";
@@ -1741,8 +1746,10 @@ function renderCart() {
     cartFinal.textContent = `Total del pedido: ${formatCurrency(finalTotal)}`;
   }
   if (cartDeposit) {
-    cartDeposit.hidden = true;
-    cartDeposit.textContent = "";
+    cartDeposit.hidden = !cart.length;
+    cartDeposit.innerHTML = cart.length
+      ? `Para reservar: ${formatCurrency(deposit)} (50%)<br>Saldo al terminar: ${formatCurrency(balance)}`
+      : "";
   }
   if (cartCoupon) {
     cartCoupon.value = couponCode;
@@ -1781,7 +1788,7 @@ function renderCart() {
   } else {
     cartWhatsapp.target = warning ? "_self" : "_blank";
     cartWhatsapp.href = warning ? "#" : `https://wa.me/56985781006?text=${cartMessage()}`;
-    cartWhatsapp.textContent = "Agendar pedido";
+    cartWhatsapp.textContent = "Continuar y agendar por WhatsApp";
   }
 
   cartItems.innerHTML = cart
