@@ -105,6 +105,7 @@
           <h2>Carrito</h2>
           <button class="icon-button" type="button" id="cart-close-button" aria-label="Cerrar carrito">x</button>
         </div>
+        <p class="cart-added-message" id="cart-added-message" hidden>Producto agregado al carrito</p>
         <div class="cart-items" id="cart-items"></div>
         <div class="cart-agenda" id="cart-agenda" hidden></div>
           <p class="cart-empty" id="cart-empty">Tu carrito está vacío.</p>
@@ -123,8 +124,10 @@
           <p class="cart-warning" id="cart-warning" hidden></p>
         </div>
           <p class="cart-note">No realizarás ningún pago todavía. Primero confirmaremos los detalles de tu pedido por WhatsApp.</p>
-        <button class="button secondary cart-continue" id="cart-continue-button" type="button">Seguir comprando</button>
-        <a class="button primary cart-whatsapp" id="cart-whatsapp" href="https://wa.me/56985781006" target="_blank" rel="noopener">Continuar y agendar por WhatsApp</a>
+        <div class="cart-actions" aria-label="Acciones del carrito">
+          <button class="button secondary cart-continue" id="cart-continue-button" type="button">Seguir comprando</button>
+          <a class="button primary cart-whatsapp" id="cart-whatsapp" href="https://wa.me/56985781006" target="_blank" rel="noopener">Finalizar compra</a>
+        </div>
       </div>
     </aside>
 

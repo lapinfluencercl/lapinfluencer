@@ -497,6 +497,7 @@ const categoryLabel = document.querySelector("#current-category-label");
 const categoryTitle = document.querySelector("#current-category-title");
 const cartDrawer = document.querySelector("#cart-drawer");
 const cartItems = document.querySelector("#cart-items");
+const cartAddedMessage = document.querySelector("#cart-added-message");
 const cartEmpty = document.querySelector("#cart-empty");
 const cartCount = document.querySelector("#cart-count");
 const cartWhatsapp = document.querySelector("#cart-whatsapp");
@@ -551,12 +552,32 @@ let agendaModal = null;
 let agendaModalBody = null;
 let agendaModalMonth = new Date(firstAgendaMonth);
 let mixedSeparateMode = false;
+let cartAddedNoticeVisible = false;
 const monthNames = Array.from({ length: 12 }, (_, index) =>
   new Date(2026, index, 1).toLocaleDateString("es-CL", { month: "long" })
 );
 
 function startOfDay(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function chileToday() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Santiago",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric"
+  }).formatToParts(new Date()).reduce((items, part) => {
+    items[part.type] = part.value;
+    return items;
+  }, {});
+  return new Date(Number(parts.year), Number(parts.month) - 1, Number(parts.day));
+}
+
+function agendaWeekCutoff(days) {
+  const cutoff = new Date(days[0]);
+  cutoff.setDate(cutoff.getDate() - 3);
+  return startOfDay(cutoff);
 }
 
 function agendaWeeksForMonth(monthDate) {
@@ -592,8 +613,7 @@ function agendaWeeksForMonth(monthDate) {
 }
 
 function isPastAgendaWeek(days) {
-  const weekEnd = days[6];
-  return startOfDay(weekEnd) < startOfDay(new Date());
+  return chileToday() >= agendaWeekCutoff(days);
 }
 
 function monthHasAvailability(monthDate) {
@@ -1657,6 +1677,7 @@ function addToCart(name, price, category = currentCategory, quantity = 1) {
   } else {
     cart.push({ name, price, quantity: amount, category });
   }
+  cartAddedNoticeVisible = true;
   if (syncAgendaSelectionWithCart()) {
     agendaCompatibilityNotice = "Selecciona una fecha compatible con tu pedido.";
   }
@@ -1724,6 +1745,9 @@ function renderCart() {
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   cartCount.textContent = totalItems;
   cartEmpty.hidden = cart.length > 0;
+  if (cartAddedMessage) {
+    cartAddedMessage.hidden = !cartAddedNoticeVisible || !cart.length;
+  }
   if (cartAgenda) {
     const agendaHtml = cartAgendaHtml();
     cartAgenda.hidden = !agendaHtml;
@@ -1784,11 +1808,11 @@ function renderCart() {
   } else if (needsAgendaDate) {
     cartWhatsapp.href = "#agenda";
     cartWhatsapp.target = "_self";
-    cartWhatsapp.textContent = "Seleccionar fecha a agendar";
+    cartWhatsapp.textContent = "Finalizar compra";
   } else {
     cartWhatsapp.target = warning ? "_self" : "_blank";
     cartWhatsapp.href = warning ? "#" : `https://wa.me/56985781006?text=${cartMessage()}`;
-    cartWhatsapp.textContent = "Continuar y agendar por WhatsApp";
+    cartWhatsapp.textContent = "Finalizar compra";
   }
 
   cartItems.innerHTML = cart
@@ -1947,10 +1971,14 @@ cartOpenButton.addEventListener("click", () => {
 });
 
 cartCloseButton.addEventListener("click", () => {
+  cartAddedNoticeVisible = false;
+  if (cartAddedMessage) cartAddedMessage.hidden = true;
   cartDrawer.hidden = true;
 });
 
 cartContinueButton?.addEventListener("click", () => {
+  cartAddedNoticeVisible = false;
+  if (cartAddedMessage) cartAddedMessage.hidden = true;
   cartDrawer.hidden = true;
 });
 

@@ -747,6 +747,7 @@ const optionsEl = document.querySelector("#product-options");
 const categoryBackLink = document.querySelector("#category-back-link");
 const cartDrawer = document.querySelector("#cart-drawer");
 const cartItems = document.querySelector("#cart-items");
+const cartAddedMessage = document.querySelector("#cart-added-message");
 const cartEmpty = document.querySelector("#cart-empty");
 const cartCount = document.querySelector("#cart-count");
 const cartWhatsapp = document.querySelector("#cart-whatsapp");
@@ -770,6 +771,7 @@ let appliedCoupon = null;
 let couponStatus = "";
 let coupons = [];
 let agendaCompatibilityNotice = "";
+let cartAddedNoticeVisible = false;
 const EMOJI_ARTIST = "\u{1F469}\u{1F3FB}\u200D\u{1F3A8}";
 const EMOJI_WRITE = "\u270D\u{1F3FB}";
 const EMOJI_TICKET = "\u{1F39F}\uFE0F";
@@ -789,6 +791,25 @@ const agendaTypes = {
 
 function startOfDay(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function chileToday() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Santiago",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric"
+  }).formatToParts(new Date()).reduce((items, part) => {
+    items[part.type] = part.value;
+    return items;
+  }, {});
+  return new Date(Number(parts.year), Number(parts.month) - 1, Number(parts.day));
+}
+
+function agendaWeekCutoff(days) {
+  const cutoff = new Date(days[0]);
+  cutoff.setDate(cutoff.getDate() - 3);
+  return startOfDay(cutoff);
 }
 
 function agendaWeeksForMonth(monthDate) {
@@ -824,7 +845,7 @@ function agendaWeeksForMonth(monthDate) {
 }
 
 function isPastAgendaWeek(days) {
-  return startOfDay(days[6]) < startOfDay(new Date());
+  return chileToday() >= agendaWeekCutoff(days);
 }
 
 function agendaKey(year, monthIndex, week) {
@@ -1177,6 +1198,7 @@ function addToCart(name, price, category = categoryKey, quantity = 1) {
   } else {
     cart.push({ name, price, quantity: amount, category });
   }
+  cartAddedNoticeVisible = true;
   if (!selectedAgendaMatchesCart()) {
     clearSelectedAgenda();
     agendaCompatibilityNotice = "Selecciona una fecha compatible con tu pedido.";
@@ -1249,6 +1271,9 @@ function renderCart() {
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   cartCount.textContent = totalItems;
   cartEmpty.hidden = cart.length > 0;
+  if (cartAddedMessage) {
+    cartAddedMessage.hidden = !cartAddedNoticeVisible || !cart.length;
+  }
   if (cartAgenda) {
     const agendaHtml = cartAgendaHtml();
     cartAgenda.hidden = !agendaHtml;
@@ -1309,11 +1334,11 @@ function renderCart() {
   } else if (needsAgendaDate) {
     cartWhatsapp.href = "index.html#agenda";
     cartWhatsapp.target = "_self";
-    cartWhatsapp.textContent = "Seleccionar fecha a agendar";
+    cartWhatsapp.textContent = "Finalizar compra";
   } else {
     cartWhatsapp.target = warning ? "_self" : "_blank";
     cartWhatsapp.href = warning ? "#" : `https://wa.me/56985781006?text=${cartMessage()}`;
-    cartWhatsapp.textContent = "Continuar y agendar por WhatsApp";
+    cartWhatsapp.textContent = "Finalizar compra";
   }
 
   cartItems.innerHTML = cart
@@ -1445,10 +1470,14 @@ cartOpenButton.addEventListener("click", () => {
 });
 
 cartCloseButton.addEventListener("click", () => {
+  cartAddedNoticeVisible = false;
+  if (cartAddedMessage) cartAddedMessage.hidden = true;
   cartDrawer.hidden = true;
 });
 
 cartContinueButton?.addEventListener("click", () => {
+  cartAddedNoticeVisible = false;
+  if (cartAddedMessage) cartAddedMessage.hidden = true;
   cartDrawer.hidden = true;
 });
 
