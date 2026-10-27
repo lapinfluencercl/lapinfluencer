@@ -2,40 +2,25 @@
   return value.toLocaleString("es-CL");
 }
 
-function personVariants(maxPersons, basePrice, personAdd) {
+function personVariants(maxPersons) {
   return Array.from({ length: maxPersons }, (_, index) => {
     const persons = index + 1;
-    return {
-      title: `${persons} persona${persons > 1 ? "s" : ""}`,
-      price: formatCatalogPrice(basePrice + index * personAdd)
-    };
+    return { title: persons + " persona" + (persons > 1 ? "s" : "") };
   });
 }
 
-function personPetVariants(maxPersons, maxPets, basePrice, personAdd, petAdd) {
-  const variants = [];
-  for (let persons = 1; persons <= maxPersons; persons += 1) {
-    for (let pets = 1; pets <= maxPets; pets += 1) {
-      variants.push({
-        title: `${persons} persona${persons > 1 ? "s" : ""} + ${pets} mascota${pets > 1 ? "s" : ""}`,
-        price: formatCatalogPrice(basePrice + (persons - 1) * personAdd + (pets - 1) * petAdd)
-      });
-    }
-  }
-  return variants;
-}
-
-function personPetRows(rows, basePrice, personAdd, petAdd) {
+function personPetRows(rows) {
   return rows.flatMap(({ persons, maxPets }) =>
     Array.from({ length: maxPets }, (_, index) => {
       const pets = index + 1;
-      return {
-        title: `${persons} persona${persons > 1 ? "s" : ""} + ${pets} mascota${pets > 1 ? "s" : ""}`,
-        price: formatCatalogPrice(basePrice + (persons - 1) * personAdd + (pets - 1) * petAdd)
-      };
+      return { title: persons + " persona" + (persons > 1 ? "s" : "") + " + " + pets + " mascota" + (pets > 1 ? "s" : "") };
     })
   );
 }
+
+const priceResponse = await fetch("precios.json", { cache: "no-store" });
+if (!priceResponse.ok) throw new Error("No se pudo cargar precios.json (" + priceResponse.status + ").");
+const priceList = await priceResponse.json();
 
 const catalog = {
   esculpidas: {
@@ -44,7 +29,6 @@ const catalog = {
       {
         name: "Llavero 3D",
         image: "assets/productos/catalogo-llavero-3d-limpio.png",
-        price: "22.000",
         summary: "Retrato esculpido de 5 a 6 cm aprox.",
         details: [
           "Dije con nombre, en forma de corazon, huesito, pescadito o estrella.",
@@ -57,7 +41,6 @@ const catalog = {
         name: "Magneto 3D",
         aliases: ["Magneto"],
         image: "assets/productos/catalogo-magneto-3d-limpio.png",
-        price: "22.000",
         summary: "Retrato esculpido de 5 a 6 cm aprox.",
         details: [
           "Dije con nombre: huesito, pescadito o rectángulo.",
@@ -69,7 +52,6 @@ const catalog = {
         name: "Clip 3D para el auto",
         aliases: ["Clip", "Clip para el auto"],
         image: "assets/productos/catalogo-clip-auto-limpio.png",
-        price: "22.000",
         summary: "Clip de rejilla para el auto con retrato esculpido de 5 a 6 cm aprox.",
         details: [
           "Incluye dije con nombre.",
@@ -81,24 +63,21 @@ const catalog = {
         name: "Colgante 3D",
         aliases: ["Colgante"],
         image: "assets/productos/colgante-catalogo.png",
-        price: "Desde 33.000",
         summary: "Colgante esculpido con fondo, decoracion y nombre.",
         options: [
           {
             title: "Colgante 8 cm de diametro",
             image: "assets/productos/colgante-8cm.png",
-            price: "1 mascota: 33.000",
             notes: ["Incluye cuerina sintetica para colgar.", "Tipos de decoracion: flores, suculentas, hojas, corazones, huesitos, patitas, conchitas de mar, etc."]
           },
           {
             title: "Colgante 15 cm de diametro",
             image: "assets/productos/colgante-catalogo.png",
-            price: "Desde 46.000",
             notes: ["Incluye cuerina sintetica para colgar.", "Tipos de decoracion: flores, suculentas, hojas, corazones, huesitos, patitas, conchitas de mar, etc."],
             variants: [
-              { title: "1 mascota", price: "46.000" },
-              { title: "2 mascotas", price: "56.000" },
-              { title: "3 mascotas", price: "66.000" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" }
             ]
           }
         ]
@@ -106,24 +85,22 @@ const catalog = {
       {
         name: "Charm colgante",
         image: "assets/productos/charm-colgante.png",
-        price: "Desde 18.000",
         summary: "Charm colgante para mochilas o bolsos, totalmente personalizado. El rostro de la mascota se trabaja en estilo caricatura.",
         options: [
           {
             title: "Charm colgante",
             image: "assets/productos/charm-colgante.png",
-            price: "Desde 18.000",
             variants: [
-              { title: "1 mascota", price: "18.000" },
-              { title: "2 mascotas", price: "22.000" },
-              { title: "3 mascotas", price: "26.000" },
-              { title: "4 mascotas", price: "30.000" },
-              { title: "5 mascotas", price: "34.000" },
-              { title: "6 mascotas", price: "38.000" },
-              { title: "7 mascotas", price: "42.000" },
-              { title: "8 mascotas", price: "46.000" },
-              { title: "9 mascotas", price: "50.000" },
-              { title: "10 mascotas", price: "54.000" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" },
+              { title: "5 mascotas" },
+              { title: "6 mascotas" },
+              { title: "7 mascotas" },
+              { title: "8 mascotas" },
+              { title: "9 mascotas" },
+              { title: "10 mascotas" }
             ]
           }
         ]
@@ -131,35 +108,32 @@ const catalog = {
       {
         name: "Cuadro 3D",
         image: "assets/productos/portada-cuadros-3d.png",
-        price: "Desde 57.500",
         summary: "Cuadro esculpido con marco vintage color blanco.",
         options: [
           {
             title: "Cuadro 3D 15 x 20 cm",
             image: "assets/productos/cuadro-3d-15x20.png",
-            price: "Desde 57.500",
             notes: ["Desde 2 mascotas el marco va horizontal."],
             variants: [
-              { title: "1 mascota", price: "57.500" },
-              { title: "2 mascotas", price: "69.500" },
-              { title: "3 mascotas", price: "81.500" },
-              { title: "4 mascotas", price: "93.500" },
-              { title: "5 mascotas", price: "105.500" },
-              { title: "6 mascotas", price: "117.500" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" },
+              { title: "5 mascotas" },
+              { title: "6 mascotas" }
             ]
           },
           {
             title: "Cuadro 3D grande 23 x 27 cm",
             image: "assets/productos/cuadro-3d-grande.png",
-            price: "Desde 84.000",
             notes: ["Desde 2 mascotas el marco va horizontal."],
             variants: [
-              { title: "1 mascota", price: "84.000" },
-              { title: "2 mascotas", price: "99.000" },
-              { title: "3 mascotas", price: "114.000" },
-              { title: "4 mascotas", price: "129.000" },
-              { title: "5 mascotas", price: "144.000" },
-              { title: "6 mascotas", price: "159.000" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" },
+              { title: "5 mascotas" },
+              { title: "6 mascotas" }
             ]
           }
         ]
@@ -168,20 +142,17 @@ const catalog = {
         name: "Figura decorativa",
         aliases: ["Figura"],
         image: "assets/productos/portada-figuras.png",
-        price: "Desde 84.000",
         summary: "Figura miniatura sobre base de madera con placa.",
         notice: "Si quieres mas de una figura en la misma base, el valor es el mismo.",
         options: [
           {
             title: "Figura M",
             image: "assets/productos/figura-m.png",
-            price: "84.000",
             notes: ["Base aproximada de 7,5 cm.", "Alto aproximado de 9 a 10 cm."]
           },
           {
             title: "Figura L",
             image: "assets/productos/figura-l.png",
-            price: "120.000",
             notes: ["Base de 12 cm.", "Alto aproximado de 13 a 14 cm."]
           }
         ]
@@ -195,17 +166,15 @@ const catalog = {
         name: "Llavero circular",
         aliases: ["Llavero"],
         image: "assets/productos/llavero-circular-nuevo.png",
-        price: "Desde 16.500",
         summary: "Llavero circular acrílico pintado a mano y bañado en resina.",
         options: [
           {
             title: "¿Qué incluye?",
             image: "assets/productos/llavero-circular-nuevo.png",
-            price: "Desde 16.500",
             notes: ["Nombre al reverso.", "Color de fondo a elección.", "Incluye borla decorativa de color aleatorio según disponibilidad."],
             variants: [
-              { title: "1 retrato", price: "16.500" },
-              { title: "2 retratos", price: "22.000" }
+              { title: "1 retrato" },
+              { title: "2 retratos" }
             ]
           }
         ]
@@ -214,63 +183,58 @@ const catalog = {
         name: "Tazones",
         aliases: ["Tazon"],
         image: "assets/productos/portada-pintadas-tazon.png",
-        price: "Desde 16.500",
         summary: "Tazones pintados a mano, incluye nombre y adornos simples.",
         options: [
           {
             title: "Tazón Café-Lover",
             image: "assets/productos/tazon-cafe-lover.png",
             colorImage: "assets/productos/colores-tazon-cafe-lover.png",
-            price: "Desde 22.000",
             notes: ["Medida: 350 cc."],
             colors: ["Blanco", "Celeste", "Rosado", "Lila"],
             variants: [
-              { title: "1 mascota", price: "22.000" },
-              { title: "2 mascotas", price: "33.000" },
-              { title: "3 mascotas", price: "46.000" },
-              { title: "4 mascotas", price: "59.000" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" }
             ]
           },
           {
             title: "Tazón Tricolor",
             image: "assets/productos/tazon-tricolor.png",
             colorImage: "assets/productos/colores-tazon-tricolor.png",
-            price: "Desde 16.500",
             notes: ["Medida: 300 cc."],
             colors: ["Café", "Negro"],
             variants: [
-              { title: "1 mascota", price: "16.500" },
-              { title: "2 mascotas", price: "27.500" },
-              { title: "3 mascotas", price: "40.500" },
-              { title: "4 mascotas", price: "53.500" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" }
             ]
           },
           {
             title: "Tazón Sencillo",
             image: "assets/productos/tazon-sencillo.png",
             colorImage: "assets/productos/colores-tazon-sencillo.png",
-            price: "Desde 22.000",
             notes: ["Medida: 400 cc."],
             colors: ["Beige", "Rosado", "Celeste", "Verde"],
             variants: [
-              { title: "1 mascota", price: "22.000" },
-              { title: "2 mascotas", price: "33.000" },
-              { title: "3 mascotas", price: "46.000" },
-              { title: "4 mascotas", price: "59.000" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" }
             ]
           },
           {
             title: "Tazón tipo Matero",
             image: "assets/productos/catalogo-tazones-limpio.png",
             colorImage: "assets/productos/colores-tazon-matero.png",
-            price: "Desde 22.000",
             notes: ["Medida: 700 cc."],
             colors: ["Blanco", "Blanco con asa burdeo"],
             variants: [
-              { title: "1 mascota", price: "22.000" },
-              { title: "2 mascotas", price: "33.000" },
-              { title: "3 mascotas", price: "46.000" },
-              { title: "4 mascotas", price: "59.000" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" }
             ]
           }
         ]
@@ -279,185 +243,167 @@ const catalog = {
         name: "Lienzos cuadrados, rectangulares y circulares",
         aliases: ["Lienzos"],
         image: "assets/productos/catalogo-lienzos-limpio.png",
-        price: "Desde 16.500",
         summary: "Retratos pintados en lienzos cuadrados, rectangulares o circulares.",
         options: [
           {
             group: "Retrato mascota",
             title: "Lienzo 10 x 10 cm con atril decorativo",
             image: "assets/productos/lienzo-10x10-faltante.png",
-            price: "16.500",
             notes: ["Maximo 1 mascota.", "Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "3.000" }]
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }]
           },
           {
             group: "Retrato mascota",
             title: "Lienzo 20 x 20 cm con atril",
-            price: "Desde 22.000",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "4.000" }],
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
             variants: [
-              { title: "1 mascota", price: "22.000" },
-              { title: "2 mascotas", price: "27.500" },
-              { title: "3 mascotas", price: "33.500" },
-              { title: "4 mascotas", price: "38.500" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" }
             ]
           },
           {
             group: "Retrato mascota",
             title: "Lienzo 30 x 30 cm",
-            price: "Desde 33.000",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "6.000" }],
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
             variants: [
-              { title: "1 mascota", price: "33.000" },
-              { title: "2 mascotas", price: "45.000" },
-              { title: "3 mascotas", price: "57.000" },
-              { title: "4 mascotas", price: "69.000" },
-              { title: "5 mascotas", price: "81.000" },
-              { title: "6 mascotas", price: "93.000" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" },
+              { title: "5 mascotas" },
+              { title: "6 mascotas" }
             ]
           },
           {
             group: "Retrato mascota",
             title: "Lienzo circular 30 cm de diametro",
-            price: "33.000",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "6.000" }],
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
             variants: [
-              { title: "1 mascota", price: "33.000" },
-              { title: "2 mascotas", price: "45.000" },
-              { title: "3 mascotas", price: "57.000" },
-              { title: "4 mascotas", price: "69.000" },
-              { title: "5 mascotas", price: "81.000" },
-              { title: "6 mascotas", price: "93.000" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" },
+              { title: "5 mascotas" },
+              { title: "6 mascotas" }
             ]
           },
           {
             group: "Retrato mascota",
             title: "Lienzo circular 40 cm de diametro",
-            price: "46.000",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "10.000" }],
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
             variants: [
-              { title: "1 mascota", price: "46.000" },
-              { title: "2 mascotas", price: "58.000" },
-              { title: "3 mascotas", price: "70.000" },
-              { title: "4 mascotas", price: "82.000" },
-              { title: "5 mascotas", price: "94.000" },
-              { title: "6 mascotas", price: "106.000" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" },
+              { title: "5 mascotas" },
+              { title: "6 mascotas" }
             ]
           },
           {
             group: "Retrato mascota",
             title: "Lienzo 40 x 50 cm",
-            price: "Desde 46.000",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "10.000" }],
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
             variants: [
-              { title: "1 mascota", price: "46.000" },
-              { title: "2 mascotas", price: "58.000" },
-              { title: "3 mascotas", price: "70.000" },
-              { title: "4 mascotas", price: "82.000" },
-              { title: "5 mascotas", price: "94.000" },
-              { title: "6 mascotas", price: "106.000" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" },
+              { title: "5 mascotas" },
+              { title: "6 mascotas" }
             ]
           },
           {
             group: "Retrato mascota",
             title: "Lienzo 50 x 50 cm",
-            price: "Desde 50.000",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "10.000" }],
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
             variants: [
-              { title: "1 mascota", price: "50.000" },
-              { title: "2 mascotas", price: "62.000" },
-              { title: "3 mascotas", price: "74.000" },
-              { title: "4 mascotas", price: "86.000" },
-              { title: "5 mascotas", price: "98.000" },
-              { title: "6 mascotas", price: "110.000" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" },
+              { title: "5 mascotas" },
+              { title: "6 mascotas" }
             ]
           },
           {
             group: "Retrato persona",
             title: "Lienzo 30 x 30 cm",
-            price: "Desde 43.000",
             notes: ["Maximo 2 personas.", "Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "6.000" }],
-            variants: personVariants(2, 43000, 15000)
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
+            variants: personVariants(2)
           },
           {
             group: "Retrato persona",
             title: "Lienzo circular 30 cm de diametro",
-            price: "Desde 43.000",
             notes: ["Maximo 2 personas.", "Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "6.000" }],
-            variants: personVariants(2, 43000, 15000)
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
+            variants: personVariants(2)
           },
           {
             group: "Retrato persona",
             title: "Lienzo circular 40 cm de diametro",
-            price: "Desde 57.500",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "10.000" }],
-            variants: personVariants(4, 57500, 15000)
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
+            variants: personVariants(4)
           },
           {
             group: "Retrato persona",
             title: "Lienzo 40 x 50 cm",
-            price: "Desde 57.500",
             notes: ["Maximo 5 personas.", "Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "10.000" }],
-            variants: personVariants(5, 57500, 15000)
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
+            variants: personVariants(5)
           },
           {
             group: "Retrato persona",
             title: "Lienzo 50 x 50 cm",
-            price: "Desde 67.500",
             notes: ["Maximo 6 personas.", "Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "10.000" }],
-            variants: personVariants(6, 67500, 15000)
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
+            variants: personVariants(6)
           },
           {
             group: "Retrato mascota y persona",
             title: "Lienzo 30 x 30 cm",
-            price: "Desde 50.000",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "6.000" }],
-            variants: personPetRows([{ persons: 1, maxPets: 3 }], 50000, 15000, 10000)
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
+            variants: personPetRows([{ persons: 1, maxPets: 3 }])
           },
           {
             group: "Retrato mascota y persona",
             title: "Lienzo circular 30 cm de diametro",
-            price: "Desde 50.000",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "6.000" }],
-            variants: personPetRows([{ persons: 1, maxPets: 3 }], 50000, 15000, 10000)
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
+            variants: personPetRows([{ persons: 1, maxPets: 3 }])
           },
           {
             group: "Retrato mascota y persona",
             title: "Lienzo circular 40 cm de diametro",
-            price: "Desde 60.000",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "10.000" }],
-            variants: personPetRows([{ persons: 1, maxPets: 4 }, { persons: 2, maxPets: 3 }, { persons: 3, maxPets: 2 }], 60000, 15000, 10000)
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
+            variants: personPetRows([{ persons: 1, maxPets: 4 }, { persons: 2, maxPets: 3 }, { persons: 3, maxPets: 2 }])
           },
           {
             group: "Retrato mascota y persona",
             title: "Lienzo 40 x 50 cm",
-            price: "Desde 60.000",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "10.000" }],
-            variants: personPetRows([{ persons: 1, maxPets: 5 }, { persons: 2, maxPets: 4 }, { persons: 3, maxPets: 3 }, { persons: 4, maxPets: 2 }], 60000, 15000, 10000)
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
+            variants: personPetRows([{ persons: 1, maxPets: 5 }, { persons: 2, maxPets: 4 }, { persons: 3, maxPets: 3 }, { persons: 4, maxPets: 2 }])
           },
           {
             group: "Retrato mascota y persona",
             title: "Lienzo 50 x 50 cm",
             image: "assets/productos/lienzo-persona-mascota.png",
-            price: "Desde 68.000",
             notes: ["Incluye fondo de uno o mas colores."],
-            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea", price: "10.000" }],
-            variants: personPetRows([{ persons: 1, maxPets: 6 }, { persons: 2, maxPets: 5 }, { persons: 3, maxPets: 4 }, { persons: 4, maxPets: 3 }, { persons: 5, maxPets: 2 }], 68000, 15000, 10000)
+            addons: [{ title: "Agregar fondo personalizado basado en una foto o idea" }],
+            variants: personPetRows([{ persons: 1, maxPets: 6 }, { persons: 2, maxPets: 5 }, { persons: 3, maxPets: 4 }, { persons: 4, maxPets: 3 }, { persons: 5, maxPets: 2 }])
           }
         ]
       },
@@ -465,21 +411,19 @@ const catalog = {
         name: "Bolsa reutilizable",
         aliases: ["Bolsa"],
         image: "assets/productos/catalogo-bolsa-limpio.png",
-        price: "Desde 25.500",
         summary: "Bolsa reutilizable 40 x 40 cm.",
         options: [
           {
             title: "Bolsa reutilizable 40 x 40 cm",
             image: "assets/productos/catalogo-bolsa-limpio.png",
-            price: "Desde 25.500",
             notes: ["Puedes agregar el nombre de tu mascota.", "Elige si quieres una mascota a cada lado o al mismo lado.", "Hasta 6 mascotas."],
             variants: [
-              { title: "1 mascota", price: "25.500" },
-              { title: "2 mascotas", price: "35.500" },
-              { title: "3 mascotas", price: "45.500" },
-              { title: "4 mascotas", price: "55.500" },
-              { title: "5 mascotas", price: "65.500" },
-              { title: "6 mascotas", price: "75.500" }
+              { title: "1 mascota" },
+              { title: "2 mascotas" },
+              { title: "3 mascotas" },
+              { title: "4 mascotas" },
+              { title: "5 mascotas" },
+              { title: "6 mascotas" }
             ]
           }
         ]
@@ -487,6 +431,59 @@ const catalog = {
     ]
   }
 };
+
+function priceValue(value) {
+  const matches = String(value || "").match(/\d[\d.]*/g) || [];
+  return matches.length ? Number(matches[matches.length - 1].replace(/\./g, "")) : 0;
+}
+
+function displayStartingPrice(value, prefix) {
+  const formatted = Number(value).toLocaleString("es-CL");
+  return (prefix ? "Desde " : "") + formatted;
+}
+
+function applyCatalogPrices(targetCatalog, priceData) {
+  for (const [categoryKey, category] of Object.entries(targetCatalog)) {
+    for (const product of category.products) {
+      const productKey = slugify(product.name);
+      const priceProduct = priceData.products?.[categoryKey]?.[productKey];
+      if (!priceProduct) throw new Error("Faltan los precios de " + categoryKey + "/" + productKey + " en precios.json.");
+      const productAmounts = [];
+      for (const option of product.options || []) {
+        const optionKey = (option.group ? slugify(option.group) + "--" : "") + slugify(option.title);
+        const priceOption = priceProduct.options?.[optionKey];
+        if (!priceOption) throw new Error("Faltan los precios de " + productKey + "/" + optionKey + " en precios.json.");
+        for (const variant of option.variants || []) {
+          const priceVariant = priceOption.variants?.[slugify(variant.title)];
+          if (!priceVariant || typeof priceVariant.price !== "string") throw new Error("Falta el precio de una variante en precios.json: " + optionKey + ".");
+          variant.price = priceVariant.price;
+        }
+        for (const addon of option.addons || []) {
+          const priceAddon = priceOption.addons?.[slugify(addon.title)];
+          if (!priceAddon || typeof priceAddon.price !== "string") throw new Error("Falta un adicional en precios.json: " + optionKey + ".");
+          addon.price = priceAddon.price;
+        }
+        if (option.variants?.length) {
+          const lowest = Math.min(...option.variants.map((variant) => priceValue(variant.price)));
+          option.price = displayStartingPrice(lowest, priceOption.displayPrefix);
+          productAmounts.push(...option.variants.map((variant) => priceValue(variant.price)));
+        } else {
+          if (typeof priceOption.price !== "string") throw new Error("Falta el precio de " + optionKey + " en precios.json.");
+          option.price = priceOption.price;
+          productAmounts.push(priceValue(option.price));
+        }
+      }
+      if (product.options?.length) {
+        product.price = displayStartingPrice(Math.min(...productAmounts), priceProduct.displayPrefix);
+      } else {
+        if (typeof priceProduct.price !== "string") throw new Error("Falta el precio de " + productKey + " en precios.json.");
+        product.price = priceProduct.price;
+      }
+    }
+  }
+}
+
+applyCatalogPrices(catalog, priceList);
 
 function slugify(value) {
   return value

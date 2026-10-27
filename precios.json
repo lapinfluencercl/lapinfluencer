@@ -1,0 +1,949 @@
+{
+  "currency": "CLP",
+  "taxIncluded": true,
+  "products": {
+    "esculpidas": {
+      "llavero-3d": {
+        "name": "Llavero 3D",
+        "price": "22.000"
+      },
+      "magneto-3d": {
+        "name": "Magneto 3D",
+        "price": "22.000"
+      },
+      "clip-3d-para-el-auto": {
+        "name": "Clip 3D para el auto",
+        "price": "22.000"
+      },
+      "colgante-3d": {
+        "name": "Colgante 3D",
+        "options": {
+          "colgante-8-cm-de-diametro": {
+            "title": "Colgante 8 cm de diametro",
+            "price": "1 mascota: 33.000"
+          },
+          "colgante-15-cm-de-diametro": {
+            "title": "Colgante 15 cm de diametro",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "46.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "56.000"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "66.000"
+              }
+            },
+            "displayPrefix": true
+          }
+        },
+        "displayPrefix": true
+      },
+      "charm-colgante": {
+        "name": "Charm colgante",
+        "options": {
+          "charm-colgante": {
+            "title": "Charm colgante",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "18.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "22.000"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "26.000"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "30.000"
+              },
+              "5-mascotas": {
+                "title": "5 mascotas",
+                "price": "34.000"
+              },
+              "6-mascotas": {
+                "title": "6 mascotas",
+                "price": "38.000"
+              },
+              "7-mascotas": {
+                "title": "7 mascotas",
+                "price": "42.000"
+              },
+              "8-mascotas": {
+                "title": "8 mascotas",
+                "price": "46.000"
+              },
+              "9-mascotas": {
+                "title": "9 mascotas",
+                "price": "50.000"
+              },
+              "10-mascotas": {
+                "title": "10 mascotas",
+                "price": "54.000"
+              }
+            },
+            "displayPrefix": true
+          }
+        },
+        "displayPrefix": true
+      },
+      "cuadro-3d": {
+        "name": "Cuadro 3D",
+        "options": {
+          "cuadro-3d-15-x-20-cm": {
+            "title": "Cuadro 3D 15 x 20 cm",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "57.500"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "69.500"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "81.500"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "93.500"
+              },
+              "5-mascotas": {
+                "title": "5 mascotas",
+                "price": "105.500"
+              },
+              "6-mascotas": {
+                "title": "6 mascotas",
+                "price": "117.500"
+              }
+            },
+            "displayPrefix": true
+          },
+          "cuadro-3d-grande-23-x-27-cm": {
+            "title": "Cuadro 3D grande 23 x 27 cm",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "84.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "99.000"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "114.000"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "129.000"
+              },
+              "5-mascotas": {
+                "title": "5 mascotas",
+                "price": "144.000"
+              },
+              "6-mascotas": {
+                "title": "6 mascotas",
+                "price": "159.000"
+              }
+            },
+            "displayPrefix": true
+          }
+        },
+        "displayPrefix": true
+      },
+      "figura-decorativa": {
+        "name": "Figura decorativa",
+        "options": {
+          "figura-m": {
+            "title": "Figura M",
+            "price": "84.000"
+          },
+          "figura-l": {
+            "title": "Figura L",
+            "price": "120.000"
+          }
+        },
+        "displayPrefix": true
+      }
+    },
+    "pintadas": {
+      "llavero-circular": {
+        "name": "Llavero circular",
+        "options": {
+          "que-incluye": {
+            "title": "¿Qué incluye?",
+            "variants": {
+              "1-retrato": {
+                "title": "1 retrato",
+                "price": "16.500"
+              },
+              "2-retratos": {
+                "title": "2 retratos",
+                "price": "22.000"
+              }
+            },
+            "displayPrefix": true
+          }
+        },
+        "displayPrefix": true
+      },
+      "tazones": {
+        "name": "Tazones",
+        "options": {
+          "tazon-cafe-lover": {
+            "title": "Tazón Café-Lover",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "22.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "33.000"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "46.000"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "59.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "tazon-tricolor": {
+            "title": "Tazón Tricolor",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "16.500"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "27.500"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "40.500"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "53.500"
+              }
+            },
+            "displayPrefix": true
+          },
+          "tazon-sencillo": {
+            "title": "Tazón Sencillo",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "22.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "33.000"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "46.000"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "59.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "tazon-tipo-matero": {
+            "title": "Tazón tipo Matero",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "22.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "33.000"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "46.000"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "59.000"
+              }
+            },
+            "displayPrefix": true
+          }
+        },
+        "displayPrefix": true
+      },
+      "lienzos-cuadrados-rectangulares-y-circulares": {
+        "name": "Lienzos cuadrados, rectangulares y circulares",
+        "options": {
+          "retrato-mascota--lienzo-10-x-10-cm-con-atril-decorativo": {
+            "title": "Lienzo 10 x 10 cm con atril decorativo",
+            "price": "16.500",
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "3.000"
+              }
+            }
+          },
+          "retrato-mascota--lienzo-20-x-20-cm-con-atril": {
+            "title": "Lienzo 20 x 20 cm con atril",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "22.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "27.500"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "33.500"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "38.500"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "4.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-mascota--lienzo-30-x-30-cm": {
+            "title": "Lienzo 30 x 30 cm",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "33.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "45.000"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "57.000"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "69.000"
+              },
+              "5-mascotas": {
+                "title": "5 mascotas",
+                "price": "81.000"
+              },
+              "6-mascotas": {
+                "title": "6 mascotas",
+                "price": "93.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "6.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-mascota--lienzo-circular-30-cm-de-diametro": {
+            "title": "Lienzo circular 30 cm de diametro",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "33.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "45.000"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "57.000"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "69.000"
+              },
+              "5-mascotas": {
+                "title": "5 mascotas",
+                "price": "81.000"
+              },
+              "6-mascotas": {
+                "title": "6 mascotas",
+                "price": "93.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "6.000"
+              }
+            },
+            "displayPrefix": false
+          },
+          "retrato-mascota--lienzo-circular-40-cm-de-diametro": {
+            "title": "Lienzo circular 40 cm de diametro",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "46.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "58.000"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "70.000"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "82.000"
+              },
+              "5-mascotas": {
+                "title": "5 mascotas",
+                "price": "94.000"
+              },
+              "6-mascotas": {
+                "title": "6 mascotas",
+                "price": "106.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "10.000"
+              }
+            },
+            "displayPrefix": false
+          },
+          "retrato-mascota--lienzo-40-x-50-cm": {
+            "title": "Lienzo 40 x 50 cm",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "46.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "58.000"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "70.000"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "82.000"
+              },
+              "5-mascotas": {
+                "title": "5 mascotas",
+                "price": "94.000"
+              },
+              "6-mascotas": {
+                "title": "6 mascotas",
+                "price": "106.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "10.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-mascota--lienzo-50-x-50-cm": {
+            "title": "Lienzo 50 x 50 cm",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "50.000"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "62.000"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "74.000"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "86.000"
+              },
+              "5-mascotas": {
+                "title": "5 mascotas",
+                "price": "98.000"
+              },
+              "6-mascotas": {
+                "title": "6 mascotas",
+                "price": "110.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "10.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-persona--lienzo-30-x-30-cm": {
+            "title": "Lienzo 30 x 30 cm",
+            "variants": {
+              "1-persona": {
+                "title": "1 persona",
+                "price": "43.000"
+              },
+              "2-personas": {
+                "title": "2 personas",
+                "price": "58.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "6.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-persona--lienzo-circular-30-cm-de-diametro": {
+            "title": "Lienzo circular 30 cm de diametro",
+            "variants": {
+              "1-persona": {
+                "title": "1 persona",
+                "price": "43.000"
+              },
+              "2-personas": {
+                "title": "2 personas",
+                "price": "58.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "6.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-persona--lienzo-circular-40-cm-de-diametro": {
+            "title": "Lienzo circular 40 cm de diametro",
+            "variants": {
+              "1-persona": {
+                "title": "1 persona",
+                "price": "57.500"
+              },
+              "2-personas": {
+                "title": "2 personas",
+                "price": "72.500"
+              },
+              "3-personas": {
+                "title": "3 personas",
+                "price": "87.500"
+              },
+              "4-personas": {
+                "title": "4 personas",
+                "price": "102.500"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "10.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-persona--lienzo-40-x-50-cm": {
+            "title": "Lienzo 40 x 50 cm",
+            "variants": {
+              "1-persona": {
+                "title": "1 persona",
+                "price": "57.500"
+              },
+              "2-personas": {
+                "title": "2 personas",
+                "price": "72.500"
+              },
+              "3-personas": {
+                "title": "3 personas",
+                "price": "87.500"
+              },
+              "4-personas": {
+                "title": "4 personas",
+                "price": "102.500"
+              },
+              "5-personas": {
+                "title": "5 personas",
+                "price": "117.500"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "10.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-persona--lienzo-50-x-50-cm": {
+            "title": "Lienzo 50 x 50 cm",
+            "variants": {
+              "1-persona": {
+                "title": "1 persona",
+                "price": "67.500"
+              },
+              "2-personas": {
+                "title": "2 personas",
+                "price": "82.500"
+              },
+              "3-personas": {
+                "title": "3 personas",
+                "price": "97.500"
+              },
+              "4-personas": {
+                "title": "4 personas",
+                "price": "112.500"
+              },
+              "5-personas": {
+                "title": "5 personas",
+                "price": "127.500"
+              },
+              "6-personas": {
+                "title": "6 personas",
+                "price": "142.500"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "10.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-mascota-y-persona--lienzo-30-x-30-cm": {
+            "title": "Lienzo 30 x 30 cm",
+            "variants": {
+              "1-persona-1-mascota": {
+                "title": "1 persona + 1 mascota",
+                "price": "50.000"
+              },
+              "1-persona-2-mascotas": {
+                "title": "1 persona + 2 mascotas",
+                "price": "60.000"
+              },
+              "1-persona-3-mascotas": {
+                "title": "1 persona + 3 mascotas",
+                "price": "70.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "6.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-mascota-y-persona--lienzo-circular-30-cm-de-diametro": {
+            "title": "Lienzo circular 30 cm de diametro",
+            "variants": {
+              "1-persona-1-mascota": {
+                "title": "1 persona + 1 mascota",
+                "price": "50.000"
+              },
+              "1-persona-2-mascotas": {
+                "title": "1 persona + 2 mascotas",
+                "price": "60.000"
+              },
+              "1-persona-3-mascotas": {
+                "title": "1 persona + 3 mascotas",
+                "price": "70.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "6.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-mascota-y-persona--lienzo-circular-40-cm-de-diametro": {
+            "title": "Lienzo circular 40 cm de diametro",
+            "variants": {
+              "1-persona-1-mascota": {
+                "title": "1 persona + 1 mascota",
+                "price": "60.000"
+              },
+              "1-persona-2-mascotas": {
+                "title": "1 persona + 2 mascotas",
+                "price": "70.000"
+              },
+              "1-persona-3-mascotas": {
+                "title": "1 persona + 3 mascotas",
+                "price": "80.000"
+              },
+              "1-persona-4-mascotas": {
+                "title": "1 persona + 4 mascotas",
+                "price": "90.000"
+              },
+              "2-personas-1-mascota": {
+                "title": "2 personas + 1 mascota",
+                "price": "75.000"
+              },
+              "2-personas-2-mascotas": {
+                "title": "2 personas + 2 mascotas",
+                "price": "85.000"
+              },
+              "2-personas-3-mascotas": {
+                "title": "2 personas + 3 mascotas",
+                "price": "95.000"
+              },
+              "3-personas-1-mascota": {
+                "title": "3 personas + 1 mascota",
+                "price": "90.000"
+              },
+              "3-personas-2-mascotas": {
+                "title": "3 personas + 2 mascotas",
+                "price": "100.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "10.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-mascota-y-persona--lienzo-40-x-50-cm": {
+            "title": "Lienzo 40 x 50 cm",
+            "variants": {
+              "1-persona-1-mascota": {
+                "title": "1 persona + 1 mascota",
+                "price": "60.000"
+              },
+              "1-persona-2-mascotas": {
+                "title": "1 persona + 2 mascotas",
+                "price": "70.000"
+              },
+              "1-persona-3-mascotas": {
+                "title": "1 persona + 3 mascotas",
+                "price": "80.000"
+              },
+              "1-persona-4-mascotas": {
+                "title": "1 persona + 4 mascotas",
+                "price": "90.000"
+              },
+              "1-persona-5-mascotas": {
+                "title": "1 persona + 5 mascotas",
+                "price": "100.000"
+              },
+              "2-personas-1-mascota": {
+                "title": "2 personas + 1 mascota",
+                "price": "75.000"
+              },
+              "2-personas-2-mascotas": {
+                "title": "2 personas + 2 mascotas",
+                "price": "85.000"
+              },
+              "2-personas-3-mascotas": {
+                "title": "2 personas + 3 mascotas",
+                "price": "95.000"
+              },
+              "2-personas-4-mascotas": {
+                "title": "2 personas + 4 mascotas",
+                "price": "105.000"
+              },
+              "3-personas-1-mascota": {
+                "title": "3 personas + 1 mascota",
+                "price": "90.000"
+              },
+              "3-personas-2-mascotas": {
+                "title": "3 personas + 2 mascotas",
+                "price": "100.000"
+              },
+              "3-personas-3-mascotas": {
+                "title": "3 personas + 3 mascotas",
+                "price": "110.000"
+              },
+              "4-personas-1-mascota": {
+                "title": "4 personas + 1 mascota",
+                "price": "105.000"
+              },
+              "4-personas-2-mascotas": {
+                "title": "4 personas + 2 mascotas",
+                "price": "115.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "10.000"
+              }
+            },
+            "displayPrefix": true
+          },
+          "retrato-mascota-y-persona--lienzo-50-x-50-cm": {
+            "title": "Lienzo 50 x 50 cm",
+            "variants": {
+              "1-persona-1-mascota": {
+                "title": "1 persona + 1 mascota",
+                "price": "68.000"
+              },
+              "1-persona-2-mascotas": {
+                "title": "1 persona + 2 mascotas",
+                "price": "78.000"
+              },
+              "1-persona-3-mascotas": {
+                "title": "1 persona + 3 mascotas",
+                "price": "88.000"
+              },
+              "1-persona-4-mascotas": {
+                "title": "1 persona + 4 mascotas",
+                "price": "98.000"
+              },
+              "1-persona-5-mascotas": {
+                "title": "1 persona + 5 mascotas",
+                "price": "108.000"
+              },
+              "1-persona-6-mascotas": {
+                "title": "1 persona + 6 mascotas",
+                "price": "118.000"
+              },
+              "2-personas-1-mascota": {
+                "title": "2 personas + 1 mascota",
+                "price": "83.000"
+              },
+              "2-personas-2-mascotas": {
+                "title": "2 personas + 2 mascotas",
+                "price": "93.000"
+              },
+              "2-personas-3-mascotas": {
+                "title": "2 personas + 3 mascotas",
+                "price": "103.000"
+              },
+              "2-personas-4-mascotas": {
+                "title": "2 personas + 4 mascotas",
+                "price": "113.000"
+              },
+              "2-personas-5-mascotas": {
+                "title": "2 personas + 5 mascotas",
+                "price": "123.000"
+              },
+              "3-personas-1-mascota": {
+                "title": "3 personas + 1 mascota",
+                "price": "98.000"
+              },
+              "3-personas-2-mascotas": {
+                "title": "3 personas + 2 mascotas",
+                "price": "108.000"
+              },
+              "3-personas-3-mascotas": {
+                "title": "3 personas + 3 mascotas",
+                "price": "118.000"
+              },
+              "3-personas-4-mascotas": {
+                "title": "3 personas + 4 mascotas",
+                "price": "128.000"
+              },
+              "4-personas-1-mascota": {
+                "title": "4 personas + 1 mascota",
+                "price": "113.000"
+              },
+              "4-personas-2-mascotas": {
+                "title": "4 personas + 2 mascotas",
+                "price": "123.000"
+              },
+              "4-personas-3-mascotas": {
+                "title": "4 personas + 3 mascotas",
+                "price": "133.000"
+              },
+              "5-personas-1-mascota": {
+                "title": "5 personas + 1 mascota",
+                "price": "128.000"
+              },
+              "5-personas-2-mascotas": {
+                "title": "5 personas + 2 mascotas",
+                "price": "138.000"
+              }
+            },
+            "addons": {
+              "agregar-fondo-personalizado-basado-en-una-foto-o-idea": {
+                "title": "Agregar fondo personalizado basado en una foto o idea",
+                "price": "10.000"
+              }
+            },
+            "displayPrefix": true
+          }
+        },
+        "displayPrefix": true
+      },
+      "bolsa-reutilizable": {
+        "name": "Bolsa reutilizable",
+        "options": {
+          "bolsa-reutilizable-40-x-40-cm": {
+            "title": "Bolsa reutilizable 40 x 40 cm",
+            "variants": {
+              "1-mascota": {
+                "title": "1 mascota",
+                "price": "25.500"
+              },
+              "2-mascotas": {
+                "title": "2 mascotas",
+                "price": "35.500"
+              },
+              "3-mascotas": {
+                "title": "3 mascotas",
+                "price": "45.500"
+              },
+              "4-mascotas": {
+                "title": "4 mascotas",
+                "price": "55.500"
+              },
+              "5-mascotas": {
+                "title": "5 mascotas",
+                "price": "65.500"
+              },
+              "6-mascotas": {
+                "title": "6 mascotas",
+                "price": "75.500"
+              }
+            },
+            "displayPrefix": true
+          }
+        },
+        "displayPrefix": true
+      }
+    }
+  },
+  "howToEdit": "Edita los valores price de productos, options, variants y addons. Usa texto con miles en formato chileno, por ejemplo \"22.000\" o \"Desde 22.000\". Este mismo archivo alimenta el catálogo, las opciones y el carrito."
+}
