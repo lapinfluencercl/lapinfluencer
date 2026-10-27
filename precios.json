@@ -51,27 +51,27 @@
             "variants": {
               "1-mascota": {
                 "title": "1 mascota",
-                "price": "18.000"
+                "price": "20.000"
               },
               "2-mascotas": {
                 "title": "2 mascotas",
-                "price": "22.000"
+                "price": "24.000"
               },
               "3-mascotas": {
                 "title": "3 mascotas",
-                "price": "26.000"
+                "price": "28.000"
               },
               "4-mascotas": {
                 "title": "4 mascotas",
-                "price": "30.000"
+                "price": "32.000"
               },
               "5-mascotas": {
                 "title": "5 mascotas",
-                "price": "34.000"
+                "price": "36.000"
               },
               "6-mascotas": {
                 "title": "6 mascotas",
-                "price": "38.000"
+                "price": "40.000"
               },
               "7-mascotas": {
                 "title": "7 mascotas",
